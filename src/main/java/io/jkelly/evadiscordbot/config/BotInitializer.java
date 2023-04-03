@@ -1,6 +1,6 @@
 package io.jkelly.evadiscordbot.config;
 
-import io.jkelly.evadiscordbot.service.EventHandler;
+import io.jkelly.evadiscordbot.service.DiscordEventHandler;
 import net.dv8tion.jda.api.JDABuilder;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
@@ -10,10 +10,10 @@ import org.springframework.stereotype.Component;
 @Component
 public class BotInitializer {
 
-    public BotInitializer(BotConfig botConfig, EventHandler eventHandler) {
+    public BotInitializer(BotConfig botConfig, DiscordEventHandler discordEventHandler) {
         var jda = JDABuilder.createDefault(botConfig.getBotToken())
                 .enableIntents(GatewayIntent.MESSAGE_CONTENT, GatewayIntent.GUILD_MESSAGE_REACTIONS).build();
-        jda.addEventListener(eventHandler);
+        jda.addEventListener(discordEventHandler);
 
         var commands = jda.updateCommands();
         commands.addCommands(
