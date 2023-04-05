@@ -39,13 +39,7 @@ public class DiscordEventHandler extends ListenerAdapter {
     public void onMessageReceived(MessageReceivedEvent event) {
         var inputMessage = event.getMessage().getContentRaw();
 
-        messageService.addMessage(messageMapper(event), userMapper(event));
-
-        log.info("message time: " + converter.timestampConverter(event.getMessage().getTimeCreated().toEpochSecond(),
-                "HH:mm dd.MM.yyyy")
-                + "\nmessage id: " + event.getMessage().getIdLong()
-                + "\nauthor nickname: " + event.getAuthor().getName()
-                + "\nauthor id: " + event.getAuthor().getIdLong());
+        messageService.addMessage(event);
 
         if (inputMessage.equals("!woof"))
             event.getChannel().sendMessage("Woof-woof!").queue();
@@ -66,21 +60,4 @@ public class DiscordEventHandler extends ListenerAdapter {
                 subjectText, firstOption, secondOption);
         event.reply(voteMessageText).queue();
     }
-
-    private Message messageMapper(MessageReceivedEvent event) {
-        var message = new Message();
-        message.setDiscordMessageId(event.getMessageIdLong());
-        message.setMessageText(event.getMessage().getContentRaw());
-        message.setMessageCreatedTime(event.getMessage().getTimeCreated().toLocalDateTime());
-        message.setUser(userMapper(event));
-        return message;
-    }
-
-    private User userMapper(MessageReceivedEvent event) {
-        var user = new User();
-        user.setDiscordId(event.getMessage().getAuthor().getIdLong());
-        user.setUsername(event.getMessage().getAuthor().getName());
-        return user;
-    }
-
 }
