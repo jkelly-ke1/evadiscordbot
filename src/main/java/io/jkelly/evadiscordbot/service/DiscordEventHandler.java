@@ -1,7 +1,5 @@
 package io.jkelly.evadiscordbot.service;
 
-import io.jkelly.evadiscordbot.models.Message;
-import io.jkelly.evadiscordbot.models.User;
 import io.jkelly.evadiscordbot.util.Converter;
 import lombok.extern.log4j.Log4j2;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
@@ -44,8 +42,11 @@ public class DiscordEventHandler extends ListenerAdapter {
         if (inputMessage.equals("!woof"))
             event.getChannel().sendMessage("Woof-woof!").queue();
 
-        if (inputMessage.contains("димас"))
+        if (converter.isContainsTrigger(inputMessage))
             event.getMessage().addReaction(Emoji.fromUnicode("\uD83E\uDDD9")).queue();
+
+        if (converter.isContainsTrigger(inputMessage))
+            event.getMessage().addReaction(Emoji.fromUnicode("\uD83D\uDC16")).queue();
 
         if (event.getMessage().getContentRaw().contains("\uD83D\uDDF3") &&
                 event.getMessage().getAuthor().getName().equals("evabot")) {
