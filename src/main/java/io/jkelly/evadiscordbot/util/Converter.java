@@ -7,7 +7,7 @@ import org.springframework.stereotype.Component;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
+
 
 @Component
 public class Converter {
@@ -26,10 +26,10 @@ public class Converter {
     }
 
     public boolean isContainsTrigger(String message) {
-        List<String> dimasList = yamlConfig.getMageNameList();
-        List<String> pigList = yamlConfig.getPigNameList();
+        var mageList = yamlConfig.getMageNameList();
+        var pigList = yamlConfig.getPigNameList();
 
-        if (dimasList.stream().anyMatch(message::contains))
+        if (mageList.stream().anyMatch(message::contains))
             return true;
 
         if (pigList.stream().anyMatch(message::contains))
