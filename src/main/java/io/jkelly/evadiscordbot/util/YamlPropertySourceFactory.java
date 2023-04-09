@@ -15,8 +15,9 @@ public class YamlPropertySourceFactory implements PropertySourceFactory {
     @Override
     public PropertySource<?> createPropertySource(String name, EncodedResource resource) throws IOException {
         var factoryBean = new YamlPropertiesFactoryBean();
-        var properties = factoryBean.getObject();
         factoryBean.setResources(resource.getResource());
+
+        var properties = factoryBean.getObject();
 
         return new PropertiesPropertySource(resource.getResource().getFilename(), properties);
     }

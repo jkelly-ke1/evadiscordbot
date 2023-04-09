@@ -36,16 +36,18 @@ public class DiscordEventHandler extends ListenerAdapter {
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
         var inputMessage = event.getMessage().getContentRaw();
-
         messageService.addMessage(event);
 
         if (inputMessage.equals("!woof"))
             event.getChannel().sendMessage("Woof-woof!").queue();
 
-        if (converter.isContainsTrigger(inputMessage))
+        if (inputMessage.startsWith("!кто "))
+            event.getChannel().sendMessage(converter.makeAnswer(inputMessage)).queue();
+
+        if (converter.isContainsMageTrigger(inputMessage))
             event.getMessage().addReaction(Emoji.fromUnicode("\uD83E\uDDD9")).queue();
 
-        if (converter.isContainsTrigger(inputMessage))
+        if (converter.isContainsPigTrigger(inputMessage))
             event.getMessage().addReaction(Emoji.fromUnicode("\uD83D\uDC16")).queue();
 
         if (event.getMessage().getContentRaw().contains("\uD83D\uDDF3") &&

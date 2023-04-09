@@ -4,14 +4,14 @@ import io.jkelly.evadiscordbot.util.YamlPropertySourceFactory;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.boot.context.properties.ConfigurationProperties;
-import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.PropertySource;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 
 @Getter
 @Setter
-@Configuration
+@Component
 @ConfigurationProperties(prefix = "triggerlist")
 @PropertySource(value = "/botTriggerList.yaml", factory = YamlPropertySourceFactory.class)
 public class YamlConfig {
@@ -19,6 +19,8 @@ public class YamlConfig {
     private List<String> mageNameList;
 
     private List<String> pigNameList;
+
+    private List<String> membersList;
 
 }
 

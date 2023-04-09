@@ -1,41 +1,43 @@
 package io.jkelly.evadiscordbot.util;
 
 import io.jkelly.evadiscordbot.config.YamlConfig;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.time.Instant;
-import java.time.ZoneId;
-import java.time.format.DateTimeFormatter;
+import java.util.Random;
 
 
 @Component
+@Log4j2
 public class Converter {
 
-    YamlConfig yamlConfig;
+    private final YamlConfig yamlConfig;
+    private final Random random;
 
     @Autowired
-    public Converter(YamlConfig yamlConfig) {
+    public Converter(YamlConfig yamlConfig, Random random) {
         this.yamlConfig = yamlConfig;
+        this.random = random;
     }
 
-    public String timestampConverter(long weatherTimestamp, String pattern) {
-        var formatter = DateTimeFormatter.ofPattern(pattern).withZone(ZoneId.systemDefault());
-        var instant = Instant.ofEpochSecond(weatherTimestamp);
-        return formatter.format(instant);
-    }
-
-    public boolean isContainsTrigger(String message) {
+    public boolean isContainsMageTrigger(String message) {
         var mageList = yamlConfig.getMageNameList();
+        return mageList.stream().anyMatch(message::contains);
+    }
+
+    public boolean isContainsPigTrigger(String message) {
         var pigList = yamlConfig.getPigNameList();
+        return pigList.stream().anyMatch(message::contains);
+    }
 
-        if (mageList.stream().anyMatch(message::contains))
-            return true;
-
-        if (pigList.stream().anyMatch(message::contains))
-            return true;
-
-        return false;
+    public String makeAnswer(String question) {
+        var answerBuilder = new StringBuilder();
+        answerBuilder.append(question)
+                .replace(0, 4, yamlConfig.getMembersList()
+                        .get(random.nextInt(yamlConfig.getMembersList().size())))
+                .append("!");
+        return String.format("**%s**", answerBuilder.toString());
     }
 
 }
