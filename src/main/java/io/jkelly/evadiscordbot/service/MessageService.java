@@ -3,7 +3,6 @@ package io.jkelly.evadiscordbot.service;
 import io.jkelly.evadiscordbot.models.Message;
 import io.jkelly.evadiscordbot.models.User;
 import io.jkelly.evadiscordbot.repositores.MessageRepository;
-import io.jkelly.evadiscordbot.repositores.UserRepository;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,12 +13,12 @@ import org.springframework.transaction.annotation.Transactional;
 public class MessageService {
 
     private final MessageRepository messageRepository;
-    private final UserRepository userRepository;
+    private final UserService userService;
 
     @Autowired
-    public MessageService(MessageRepository messageRepository, UserRepository userRepository) {
+    public MessageService(MessageRepository messageRepository, UserService userService) {
         this.messageRepository = messageRepository;
-        this.userRepository = userRepository;
+        this.userService = userService;
     }
 
     @Transactional
@@ -37,13 +36,13 @@ public class MessageService {
     }
 
     private User userMapper(MessageReceivedEvent event) {
-        if (userRepository.getUserByDiscordId(event.getAuthor().getIdLong()).isPresent()) {
-            return userRepository.getUserByDiscordId(event.getAuthor().getIdLong()).get();
+        if (userService.getUserByDiscordId(event.getAuthor().getIdLong()) != null) {
+            return userService.getUserByDiscordId(event.getAuthor().getIdLong());
         } else {
             var user = new User();
             user.setDiscordId(event.getMessage().getAuthor().getIdLong());
             user.setUsername(event.getMessage().getAuthor().getName());
-            userRepository.save(user);
+            userService.addUser(user);
             return user;
         }
     }

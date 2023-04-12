@@ -5,6 +5,7 @@ import lombok.extern.log4j.Log4j2;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
+import net.dv8tion.jda.api.events.user.update.UserUpdateNameEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
@@ -15,11 +16,13 @@ public class DiscordEventHandler extends ListenerAdapter {
 
     private final Converter converter;
     private final MessageService messageService;
+    private final UserService userService;
 
     @Autowired
-    public DiscordEventHandler(Converter converter, MessageService messageService) {
+    public DiscordEventHandler(Converter converter, MessageService messageService, UserService userService) {
         this.converter = converter;
         this.messageService = messageService;
+        this.userService = userService;
     }
 
     @Override
@@ -50,12 +53,27 @@ public class DiscordEventHandler extends ListenerAdapter {
         if (converter.isContainsPigTrigger(inputMessage))
             event.getMessage().addReaction(Emoji.fromUnicode("\uD83D\uDC16")).queue();
 
+        if (converter.isContainsShameTrigger(inputMessage)) {
+            event.getMessage().addReaction(Emoji.fromUnicode("\uD83C\uDDF8")).queue();
+            event.getMessage().addReaction(Emoji.fromUnicode("\uD83C\uDDED")).queue();
+            event.getMessage().addReaction(Emoji.fromUnicode("\uD83C\uDDE6")).queue();
+            event.getMessage().addReaction(Emoji.fromUnicode("\uD83C\uDDF2")).queue();
+            event.getMessage().addReaction(Emoji.fromUnicode("\uD83C\uDDEA")).queue();
+        }
+
         if (event.getMessage().getContentRaw().contains("\uD83D\uDDF3") &&
                 event.getMessage().getAuthor().getName().equals("evabot")) {
             event.getMessage().addReaction(Emoji.fromUnicode("1️⃣")).queue();
             event.getMessage().addReaction(Emoji.fromUnicode("2️⃣")).queue();
         }
 
+    }
+
+    @Override
+    public void onUserUpdateName(UserUpdateNameEvent event) {
+        log.info("User {} (id '{}') changed his username to {}!",
+                event.getOldName(), event.getUser().getIdLong(), event.getNewName());
+        userService.updateUser(event.getUser().getIdLong(), event.getNewName());
     }
 
     public void vote(SlashCommandInteractionEvent event, String subjectText, String firstOption, String secondOption) {

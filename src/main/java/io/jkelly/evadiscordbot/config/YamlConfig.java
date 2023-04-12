@@ -22,5 +22,7 @@ public class YamlConfig {
 
     private List<String> membersList;
 
+    private List<String> shameList;
+
 }
 

@@ -31,6 +31,11 @@ public class Converter {
         return pigList.stream().anyMatch(message::contains);
     }
 
+    public boolean isContainsShameTrigger(String message) {
+        var shameList = yamlConfig.getShameList();
+        return shameList.stream().anyMatch(message::contains);
+    }
+
     public String makeAnswer(String question) {
         var answerBuilder = new StringBuilder();
         answerBuilder.append(question)

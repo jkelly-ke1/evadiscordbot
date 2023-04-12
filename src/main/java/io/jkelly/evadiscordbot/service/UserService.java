@@ -1,6 +1,5 @@
 package io.jkelly.evadiscordbot.service;
 
-
 import io.jkelly.evadiscordbot.models.User;
 import io.jkelly.evadiscordbot.repositores.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,8 +21,12 @@ public class UserService {
 
     @Transactional
     public void addUser(User user) {
-        if (userRepository.getUserByDiscordId(user.getDiscordId()).isEmpty())
-            userRepository.save(user);
+        userRepository.save(user);
+    }
+
+    @Transactional
+    public void updateUser(long discordId, String updatedUsername) {
+        userRepository.getUserByDiscordId(discordId).ifPresent(user -> user.setUsername(updatedUsername));
     }
 
     public User getUserByDiscordId(long discordId) {
