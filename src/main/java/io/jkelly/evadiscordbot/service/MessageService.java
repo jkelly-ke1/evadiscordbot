@@ -30,6 +30,7 @@ public class MessageService {
         var message = new Message();
         message.setDiscordMessageId(event.getMessageIdLong());
         message.setMessageText(event.getMessage().getContentRaw());
+        message.setChannelName(event.getMessage().getChannel().getName());
         message.setMessageCreatedTime(event.getMessage().getTimeCreated().toLocalDateTime());
         message.setUser(userMapper(event));
         return message;

@@ -23,6 +23,9 @@ public class Message {
     @Column(name = "message_text")
     private String messageText;
 
+    @Column(name = "channel_name")
+    private String channelName;
+
     @Column(name = "time")
     private LocalDateTime messageCreatedTime;
 

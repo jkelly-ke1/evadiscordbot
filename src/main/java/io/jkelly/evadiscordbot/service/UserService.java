@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -27,6 +28,10 @@ public class UserService {
     @Transactional
     public void updateUser(long discordId, String updatedUsername) {
         userRepository.getUserByDiscordId(discordId).ifPresent(user -> user.setUsername(updatedUsername));
+    }
+
+    public List<User> getAllUser() {
+        return userRepository.findAll();
     }
 
     public User getUserByDiscordId(long discordId) {

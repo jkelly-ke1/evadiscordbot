@@ -1,10 +1,13 @@
 package io.jkelly.evadiscordbot.util;
 
 import io.jkelly.evadiscordbot.config.YamlConfig;
+import io.jkelly.evadiscordbot.models.User;
+import io.jkelly.evadiscordbot.service.UserService;
 import lombok.extern.log4j.Log4j2;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Random;
 
 
@@ -14,11 +17,13 @@ public class Converter {
 
     private final YamlConfig yamlConfig;
     private final Random random;
+    private final UserService userService;
 
     @Autowired
-    public Converter(YamlConfig yamlConfig, Random random) {
+    public Converter(YamlConfig yamlConfig, Random random, UserService userService) {
         this.yamlConfig = yamlConfig;
         this.random = random;
+        this.userService = userService;
     }
 
     public boolean isContainsMageTrigger(String message) {
@@ -34,6 +39,11 @@ public class Converter {
     public boolean isContainsShameTrigger(String message) {
         var shameList = yamlConfig.getShameList();
         return shameList.stream().anyMatch(message::contains);
+    }
+
+    public long earnRandomServerMember() {
+        var users = userService.getAllUser();
+        return users.get(random.nextInt(users.size())).getDiscordId();
     }
 
     public String makeAnswer(String question) {

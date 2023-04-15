@@ -2,9 +2,12 @@ package io.jkelly.evadiscordbot.config;
 
 import io.jkelly.evadiscordbot.service.DiscordEventHandler;
 import net.dv8tion.jda.api.JDABuilder;
+import net.dv8tion.jda.api.entities.Activity;
 import net.dv8tion.jda.api.interactions.commands.OptionType;
 import net.dv8tion.jda.api.interactions.commands.build.Commands;
 import net.dv8tion.jda.api.requests.GatewayIntent;
+import net.dv8tion.jda.api.utils.ChunkingFilter;
+import net.dv8tion.jda.api.utils.MemberCachePolicy;
 import org.springframework.stereotype.Component;
 
 @Component
@@ -12,7 +15,13 @@ public class BotInitializer {
 
     public BotInitializer(BotConfig botConfig, DiscordEventHandler discordEventHandler) {
         var jda = JDABuilder.createDefault(botConfig.getBotToken())
-                .enableIntents(GatewayIntent.MESSAGE_CONTENT, GatewayIntent.GUILD_MESSAGE_REACTIONS).build();
+                .setChunkingFilter(ChunkingFilter.ALL)
+                .setMemberCachePolicy(MemberCachePolicy.ALL)
+                .setActivity(Activity.listening("Megadeth"))
+                .enableIntents(GatewayIntent.MESSAGE_CONTENT,
+                        GatewayIntent.GUILD_MESSAGE_REACTIONS,
+                        GatewayIntent.GUILD_MEMBERS)
+                .build();
         jda.addEventListener(discordEventHandler);
 
         var commands = jda.updateCommands();

@@ -17,7 +17,7 @@ public class BotConfig {
     @Value("${discord.bot.token}")
     private String botToken;
 
-    public BotConfig(String botToken) {
-        this.botToken = botToken;
-    }
+    @Value("${discord.bot.messageLoggingEnabled}")
+    private boolean isLoggingEnabled;
+
 }
