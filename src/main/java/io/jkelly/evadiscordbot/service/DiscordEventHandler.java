@@ -87,12 +87,14 @@ public class DiscordEventHandler extends ListenerAdapter {
 
     @Override
     public void onReady(@NotNull ReadyEvent event) {
-        event.getJDA().getGuildById(botConfig.getServerId()).getDefaultChannel().asTextChannel()
-                .sendMessage("✨Утречка!✨\n\uD83D\uDC36Вылезла из будки и берусь за работу!\uD83E\uDD71\uD83D\uDECC")
+        var terpilaChannel = event.getJDA().getGuildById(botConfig.getServerId())
+                .getTextChannelById(botConfig.getMainChatId());
+
+        terpilaChannel.sendMessage("✨Утречка!✨\n\uD83D\uDC36Вылезла из будки и берусь за работу!\uD83E\uDD71\uD83D\uDECC")
                 .queue();
 
         var now = ZonedDateTime.now(ZoneId.of("Europe/Kiev"));
-        var nextTime = now.withHour(13).withMinute(0).withSecond(0);
+        var nextTime = now.withHour(21).withMinute(21).withSecond(30);
 
         if (now.compareTo(nextTime) > 0)
             nextTime = nextTime.plusDays(1);
@@ -118,9 +120,7 @@ public class DiscordEventHandler extends ListenerAdapter {
             embed.setDescription(String.format("\uD83C\uDF89 Поздравляю, <@%s>! Ты **ТЕРПИЛА ДНЯ!** \uD83D\uDE40", terpilaId));
             embed.setColor(Color.RED);
 
-            event.getJDA().getGuildById(botConfig.getServerId())
-                    .getDefaultChannel().asTextChannel()
-                    .sendMessageEmbeds(embed.build()).queue();
+            terpilaChannel.sendMessageEmbeds(embed.build()).queue();
         }, initialDelay, TimeUnit.DAYS.toSeconds(1), TimeUnit.SECONDS).isDone();
 
     }

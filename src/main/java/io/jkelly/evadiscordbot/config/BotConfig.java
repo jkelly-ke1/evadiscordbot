@@ -29,4 +29,7 @@ public class BotConfig {
     @Value("${discord.bot.myGuildTerpilaRoleId}")
     private long terpilaRoleId;
 
+    @Value("${discord.bot.mainChatId}")
+    private long mainChatId;
+
 }
