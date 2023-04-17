@@ -3,9 +3,7 @@ package io.jkelly.evadiscordbot.service;
 import io.jkelly.evadiscordbot.config.BotConfig;
 import io.jkelly.evadiscordbot.util.Converter;
 import lombok.extern.log4j.Log4j2;
-import net.dv8tion.jda.api.JDA;
-import net.dv8tion.jda.api.entities.Guild;
-import net.dv8tion.jda.api.entities.UserSnowflake;
+import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -16,11 +14,11 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.awt.*;
 import java.time.Duration;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
 @Component
@@ -59,17 +57,6 @@ public class DiscordEventHandler extends ListenerAdapter {
         if (botConfig.isLoggingEnabled())
             messageService.addMessage(event);
 
-        if (inputMessage.equals("!random_member"))
-            event.getChannel().sendMessage(String.format("<@%s>", converter.earnRandomServerMember())).queue();
-
-        log.info(event.getGuild().getMembers());
-
-//        if (inputMessage.equals("!makemeterpila")) {
-//            event.getGuild().addRoleToMember(UserSnowflake.fromId(event.getAuthor().getIdLong()),
-//                    event.getJDA().getRoleById(1096789252043452537L)).queue();
-//            event.getChannel().sendMessage(String.format("<@%s>, u r TEPRILA NOW!", event.getAuthor().getIdLong())).queue();
-//        }
-
         if (inputMessage.equals("!woof"))
             event.getChannel().sendMessage(String.format("Woof-woof, <@%s>!", event.getAuthor().getIdLong())).queue();
 
@@ -100,22 +87,42 @@ public class DiscordEventHandler extends ListenerAdapter {
 
     @Override
     public void onReady(@NotNull ReadyEvent event) {
-        var now = ZonedDateTime.now(ZoneId.of("Europe/Berlin"));
-        var nextTime = now.withHour(20);
+        event.getJDA().getGuildById(botConfig.getServerId()).getDefaultChannel().asTextChannel()
+                .sendMessage("✨Утречка!✨\n\uD83D\uDC36Вылезла из будки и берусь за работу!\uD83E\uDD71\uD83D\uDECC")
+                .queue();
+
+        var now = ZonedDateTime.now(ZoneId.of("Europe/Kiev"));
+        var nextTime = now.withHour(13).withMinute(0).withSecond(0);
 
         if (now.compareTo(nextTime) > 0)
-            nextTime = nextTime.withHour(20);
+            nextTime = nextTime.plusDays(1);
 
         var durationBetweenEvent = Duration.between(now, nextTime);
         var initialDelay = durationBetweenEvent.getSeconds();
         var scheduledService = Executors.newScheduledThreadPool(1);
 
         scheduledService.scheduleAtFixedRate(() -> {
-            var jda = event.getJDA();
-            for (Guild guild : jda.getGuilds())
-                guild.getDefaultChannel().asTextChannel().sendMessage("Terpila!").queue();
+            var terpilaId = converter.earnRandomServerMember();
+            converter.defineTerpila(event.getJDA().getGuildById(botConfig.getServerId()), terpilaId);
+            var embed = new EmbedBuilder();
 
-        }, initialDelay, TimeUnit.SECONDS.toHours(20), TimeUnit.SECONDS);
+            if (terpilaId == 1089207045581971458L) {
+                embed.setDescription(String.format("\uD83C\uDF89 Поздравляю, <@%s>! Ты **ТЕРПИЛА ДНЯ!** \uD83D\uDE40" +
+                                "\nОй... \uD83D\uDE35\u200D\uD83D\uDCAB\uD83D\uDE35\u200D\uD83D\uDCAB\uD83D\uDE35\u200D\uD83D\uDCAB",
+                        terpilaId));
+            } else {
+                embed.setDescription(String.format("\uD83C\uDF89 Поздравляю, <@%s>! Ты **ТЕРПИЛА ДНЯ!** \uD83D\uDE40",
+                        terpilaId));
+            }
+
+            embed.setDescription(String.format("\uD83C\uDF89 Поздравляю, <@%s>! Ты **ТЕРПИЛА ДНЯ!** \uD83D\uDE40", terpilaId));
+            embed.setColor(Color.RED);
+
+            event.getJDA().getGuildById(botConfig.getServerId())
+                    .getDefaultChannel().asTextChannel()
+                    .sendMessageEmbeds(embed.build()).queue();
+        }, initialDelay, TimeUnit.DAYS.toSeconds(1), TimeUnit.SECONDS).isDone();
+
     }
 
     @Override

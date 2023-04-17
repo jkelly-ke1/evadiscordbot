@@ -37,8 +37,8 @@ public class MessageService {
     }
 
     private User userMapper(MessageReceivedEvent event) {
-        if (userService.getUserByDiscordId(event.getAuthor().getIdLong()) != null) {
-            return userService.getUserByDiscordId(event.getAuthor().getIdLong());
+        if (userService.getUserByDiscordId(event.getAuthor().getIdLong()).isPresent()) {
+            return userService.getUserByDiscordId(event.getAuthor().getIdLong()).get();
         } else {
             var user = new User();
             user.setDiscordId(event.getMessage().getAuthor().getIdLong());

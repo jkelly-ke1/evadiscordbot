@@ -34,9 +34,8 @@ public class UserService {
         return userRepository.findAll();
     }
 
-    public User getUserByDiscordId(long discordId) {
-        Optional<User> user = userRepository.getUserByDiscordId(discordId);
-        return user.orElseThrow();
+    public Optional<User> getUserByDiscordId(long discordId) {
+        return userRepository.getUserByDiscordId(discordId);
     }
 
 }

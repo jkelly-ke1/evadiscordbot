@@ -20,4 +20,13 @@ public class BotConfig {
     @Value("${discord.bot.messageLoggingEnabled}")
     private boolean isLoggingEnabled;
 
+    @Value("${discord.bot.myGuildId}")
+    private long serverId;
+
+    @Value("${discord.bot.myGuildTerpilaRoleName}")
+    private String terpilaRoleName;
+
+    @Value("${discord.bot.myGuildTerpilaRoleId}")
+    private long terpilaRoleId;
+
 }
