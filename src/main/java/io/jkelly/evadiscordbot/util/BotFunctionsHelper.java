@@ -13,7 +13,7 @@ import java.util.Random;
 
 @Component
 @Log4j2
-public class Converter {
+public class BotFunctionsHelper {
 
     private final YamlConfig yamlConfig;
     private final Random random;
@@ -21,7 +21,7 @@ public class Converter {
     private final BotConfig botConfig;
 
     @Autowired
-    public Converter(YamlConfig yamlConfig, Random random, UserService userService, BotConfig botConfig) {
+    public BotFunctionsHelper(YamlConfig yamlConfig, Random random, UserService userService, BotConfig botConfig) {
         this.yamlConfig = yamlConfig;
         this.random = random;
         this.userService = userService;
@@ -57,7 +57,8 @@ public class Converter {
             removeTerpila(guild, member.getIdLong());
         }
         guild.addRoleToMember(UserSnowflake.fromId(terpilaId), guild.getRoleById(botConfig.getTerpilaRoleId())).queue();
-        log.warn(String.format("Terpila granted to %s", terpilaId));
+        log.warn("Terpila granted to {} ({})",
+                guild.getMember(UserSnowflake.fromId(terpilaId)).getNickname(), terpilaId);
     }
 
     public void removeTerpila(Guild guild, long discordUserid) {

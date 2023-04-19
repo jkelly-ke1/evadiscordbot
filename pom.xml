@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>io.jkelly</groupId>
 	<artifactId>evadiscordbot</artifactId>
-	<version>0.0.1-SNAPSHOT</version>
+	<version>0.0.2-SNAPSHOT</version>
 	<name>evadiscordbot</name>
 	<description>Bot for my Discord server</description>
 	<properties>
@@ -60,6 +60,11 @@
 						</exclude>
 					</excludes>
 				</configuration>
+			</plugin>
+			<plugin>
+				<groupId>org.apache.maven.plugins</groupId>
+				<artifactId>maven-resources-plugin</artifactId>
+				<version>3.1.0</version>
 			</plugin>
 		</plugins>
 	</build>
