@@ -2,6 +2,7 @@ package io.jkelly.evadiscordbot.service;
 
 import io.jkelly.evadiscordbot.config.BotConfig;
 import io.jkelly.evadiscordbot.util.BotFunctionsHelper;
+import io.jkelly.evadiscordbot.util.TriggerChecker;
 import lombok.extern.log4j.Log4j2;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
@@ -9,6 +10,7 @@ import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.session.ReadyEvent;
+import net.dv8tion.jda.api.events.session.ShutdownEvent;
 import net.dv8tion.jda.api.events.user.update.UserUpdateNameEvent;
 import net.dv8tion.jda.api.hooks.ListenerAdapter;
 import org.jetbrains.annotations.NotNull;
@@ -27,14 +29,16 @@ import java.util.concurrent.TimeUnit;
 public class DiscordEventHandler extends ListenerAdapter {
 
     private final BotFunctionsHelper botFunctionsHelper;
+    private final TriggerChecker triggerChecker;
     private final MessageService messageService;
     private final UserService userService;
     private final BotConfig botConfig;
 
     @Autowired
-    public DiscordEventHandler(BotFunctionsHelper botFunctionsHelper, MessageService messageService,
-                               UserService userService, BotConfig botConfig) {
+    public DiscordEventHandler(BotFunctionsHelper botFunctionsHelper, TriggerChecker triggerChecker,
+                               MessageService messageService, UserService userService, BotConfig botConfig) {
         this.botFunctionsHelper = botFunctionsHelper;
+        this.triggerChecker = triggerChecker;
         this.messageService = messageService;
         this.userService = userService;
         this.botConfig = botConfig;
@@ -64,13 +68,13 @@ public class DiscordEventHandler extends ListenerAdapter {
         if (inputMessage.startsWith("!кто "))
             event.getChannel().sendMessage(botFunctionsHelper.makeAnswer(inputMessage)).queue();
 
-        if (botFunctionsHelper.isContainsMageTrigger(inputMessage))
+        if (triggerChecker.isContainsMageTrigger(inputMessage))
             event.getMessage().addReaction(Emoji.fromUnicode("\uD83E\uDDD9")).queue();
 
-        if (botFunctionsHelper.isContainsPigTrigger(inputMessage))
+        if (triggerChecker.isContainsPigTrigger(inputMessage))
             event.getMessage().addReaction(Emoji.fromUnicode("\uD83D\uDC16")).queue();
 
-        if (botFunctionsHelper.isContainsShameTrigger(inputMessage)) {
+        if (triggerChecker.isContainsShameTrigger(inputMessage)) {
             event.getMessage().addReaction(Emoji.fromUnicode("\uD83C\uDDF8")).queue();
             event.getMessage().addReaction(Emoji.fromUnicode("\uD83C\uDDED")).queue();
             event.getMessage().addReaction(Emoji.fromUnicode("\uD83C\uDDE6")).queue();
@@ -126,6 +130,15 @@ public class DiscordEventHandler extends ListenerAdapter {
             mainChannel.sendMessageEmbeds(embed.build()).queue();
         }, initialDelay, TimeUnit.DAYS.toSeconds(1), TimeUnit.SECONDS).isDone();
 
+    }
+
+    @Override
+    public void onShutdown(ShutdownEvent event) {
+        var mainChannel = event.getJDA().getGuildById(botConfig.getServerId())
+                .getTextChannelById(botConfig.getMainChatId());
+        mainChannel.sendMessage("\uD83E\uDD71\uD83D\uDE34 Ушла спать... \uD83D\uDCA4")
+                .queue();
+        log.info("Shutdown. Time: {}", event.getTimeShutdown().toString());
     }
 
     @Override

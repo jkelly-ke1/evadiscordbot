@@ -10,7 +10,6 @@ import org.springframework.stereotype.Component;
 
 import java.util.Random;
 
-
 @Component
 @Log4j2
 public class BotFunctionsHelper {
@@ -21,26 +20,12 @@ public class BotFunctionsHelper {
     private final BotConfig botConfig;
 
     @Autowired
-    public BotFunctionsHelper(YamlConfig yamlConfig, Random random, UserService userService, BotConfig botConfig) {
+    public BotFunctionsHelper(YamlConfig yamlConfig, Random random,
+                              UserService userService, BotConfig botConfig) {
         this.yamlConfig = yamlConfig;
         this.random = random;
         this.userService = userService;
         this.botConfig = botConfig;
-    }
-
-    public boolean isContainsMageTrigger(String message) {
-        var mageList = yamlConfig.getMageNameList();
-        return mageList.stream().anyMatch(message::contains);
-    }
-
-    public boolean isContainsPigTrigger(String message) {
-        var pigList = yamlConfig.getPigNameList();
-        return pigList.stream().anyMatch(message::contains);
-    }
-
-    public boolean isContainsShameTrigger(String message) {
-        var shameList = yamlConfig.getShameList();
-        return shameList.stream().anyMatch(message::contains);
     }
 
     public String makeAnswer(String question) {
@@ -68,7 +53,9 @@ public class BotFunctionsHelper {
 
     public long earnRandomServerMember() {
         var users = userService.getAllUser();
-        return users.get(random.nextInt(users.size())).getDiscordId();
+        var userId = users.get(random.nextInt(users.size())).getDiscordId();;
+        log.info("Received random user id {}", userId);
+        return userId;
     }
 
 }
