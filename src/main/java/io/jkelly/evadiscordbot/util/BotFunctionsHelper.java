@@ -28,13 +28,23 @@ public class BotFunctionsHelper {
         this.botConfig = botConfig;
     }
 
-    public String makeAnswer(String question) {
-        var answerBuilder = new StringBuilder();
-        answerBuilder.append(question)
+    public String makeWhoAnswer(String question) {
+        var answer = new StringBuilder();
+        answer.append(question)
                 .replace(0, 4, yamlConfig.getMembersList()
                         .get(random.nextInt(yamlConfig.getMembersList().size())))
                 .append("!");
-        return String.format("**%s**", answerBuilder.toString());
+        return String.format("**%s**", answer);
+    }
+
+    public String makeWhomAnswer(String question) {
+        var answer = new StringBuilder();
+        answer.append("У")
+                .append(question.substring(7))
+                .insert(2, yamlConfig.getAltMembersList()
+                        .get(random.nextInt(yamlConfig.getAltMembersList().size())) + " ")
+                .append("!");
+        return String.format("**%s**", answer);
     }
 
     public void defineTerpila(Guild guild, long terpilaId) {
@@ -43,7 +53,7 @@ public class BotFunctionsHelper {
         }
         guild.addRoleToMember(UserSnowflake.fromId(terpilaId), guild.getRoleById(botConfig.getTerpilaRoleId())).queue();
         log.warn("Terpila granted to {} ({})",
-                guild.getMember(UserSnowflake.fromId(terpilaId)).getNickname(), terpilaId);
+                guild.getMember(UserSnowflake.fromId(terpilaId)).getUser().getName(), terpilaId);
     }
 
     public void removeTerpila(Guild guild, long discordUserid) {
@@ -53,9 +63,8 @@ public class BotFunctionsHelper {
 
     public long earnRandomServerMember() {
         var users = userService.getAllUser();
-        var userId = users.get(random.nextInt(users.size())).getDiscordId();;
+        var userId = users.get(random.nextInt(users.size())).getDiscordId();
         log.info("Received random user id {}", userId);
         return userId;
     }
-
 }

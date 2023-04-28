@@ -6,6 +6,7 @@ import io.jkelly.evadiscordbot.util.TriggerChecker;
 import lombok.extern.log4j.Log4j2;
 import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
+import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
@@ -66,7 +67,10 @@ public class DiscordEventHandler extends ListenerAdapter {
             event.getChannel().sendMessage(String.format("Woof-woof, <@%s>!", event.getAuthor().getIdLong())).queue();
 
         if (inputMessage.startsWith("!кто "))
-            event.getChannel().sendMessage(botFunctionsHelper.makeAnswer(inputMessage)).queue();
+            event.getChannel().sendMessage(botFunctionsHelper.makeWhoAnswer(inputMessage)).queue();
+
+        if (inputMessage.startsWith("!у кого "))
+            event.getChannel().sendMessage(botFunctionsHelper.makeWhomAnswer(inputMessage)).queue();
 
         if (triggerChecker.isContainsMageTrigger(inputMessage))
             event.getMessage().addReaction(Emoji.fromUnicode("\uD83E\uDDD9")).queue();
@@ -100,7 +104,7 @@ public class DiscordEventHandler extends ListenerAdapter {
                 .queue();
 
         var now = ZonedDateTime.now(ZoneId.of("Europe/Kiev"));
-        var nextTime = now.withHour(13).withMinute(0).withSecond(0);
+        var nextTime = now.withHour(13).withMinute(15).withSecond(0);
 
         if (now.compareTo(nextTime) > 0)
             nextTime = nextTime.plusDays(1);
@@ -114,7 +118,7 @@ public class DiscordEventHandler extends ListenerAdapter {
             botFunctionsHelper.defineTerpila(event.getJDA().getGuildById(botConfig.getServerId()), terpilaId);
             var embed = new EmbedBuilder();
 
-            if (terpilaId == 1089207045581971458L) {
+            if (terpilaId == botConfig.getBotId()) {
                 embed.setDescription(String.format("\uD83C\uDF89 Поздравляю, <@%s>! Ты **ТЕРПИЛА ДНЯ!** \uD83D\uDE40" +
                                 "\nОй... \uD83D\uDE35\u200D\uD83D\uDCAB\uD83D\uDE35\u200D\uD83D\uDCAB\uD83D\uDE35\u200D\uD83D\uDCAB",
                         terpilaId));
@@ -150,10 +154,20 @@ public class DiscordEventHandler extends ListenerAdapter {
 
     @Override
     public void onGuildMemberJoin(GuildMemberJoinEvent event) {
+        log.info("User {} join the server", event.getUser().getIdLong());
         var mainChannel = event.getJDA()
                 .getGuildById(botConfig.getServerId()).getTextChannelById(botConfig.getMainChatId());
         mainChannel.sendMessage(String.format("✨Добро пожаловать, <@%s>!✨",
                 event.getUser().getIdLong())).queue();
+    }
+
+    @Override
+    public void onGuildLeave(GuildLeaveEvent event) {
+        var mainChannel = event.getJDA()
+                .getGuildById(botConfig.getServerId()).getTextChannelById(botConfig.getMainChatId());
+        mainChannel.sendMessage(String.format("Пока, <@%s>. \nТебя будет не хватать... \uD83E\uDD7A",
+                event.getJDA().getSelfUser().getIdLong())).queue();
+
     }
 
     public void vote(SlashCommandInteractionEvent event, String subjectText, String firstOption, String secondOption) {
