@@ -5,6 +5,7 @@ import io.jkelly.evadiscordbot.util.BotFunctionsHelper;
 import io.jkelly.evadiscordbot.util.TriggerChecker;
 import lombok.extern.log4j.Log4j2;
 import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
@@ -58,48 +59,55 @@ public class DiscordEventHandler extends ListenerAdapter {
     // listen all messages
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
-        var inputMessage = event.getMessage().getContentRaw();
+        var eventMessage = event.getMessage();
+        var messageText = eventMessage.getContentRaw();
 
         if (botConfig.isLoggingEnabled())
             messageService.addMessage(event);
 
-        if (inputMessage.equals("!woof"))
+        if (messageText.equals("!woof"))
             event.getChannel().sendMessage(String.format("Woof-woof, <@%s>!", event.getAuthor().getIdLong())).queue();
 
-        if (inputMessage.startsWith("!кто "))
-            event.getChannel().sendMessage(botFunctionsHelper.makeWhoAnswer(inputMessage)).queue();
+        if (messageText.startsWith("!кто "))
+            event.getChannel().sendMessage(botFunctionsHelper.makeWhoAnswer(messageText)).queue();
 
-        if (inputMessage.startsWith("!у кого "))
-            event.getChannel().sendMessage(botFunctionsHelper.makeWhomAnswer(inputMessage)).queue();
+        if (messageText.startsWith("!у кого "))
+            event.getChannel().sendMessage(botFunctionsHelper.makeWhomAnswer(messageText)).queue();
 
-        if (triggerChecker.isContainsMageTrigger(inputMessage))
-            event.getMessage().addReaction(Emoji.fromUnicode("\uD83E\uDDD9")).queue();
+        if (triggerChecker.isContainsMageTrigger(messageText))
+            eventMessage.addReaction(Emoji.fromUnicode("\uD83E\uDDD9")).queue();
 
-        if (triggerChecker.isContainsPigTrigger(inputMessage))
-            event.getMessage().addReaction(Emoji.fromUnicode("\uD83D\uDC16")).queue();
+        if (triggerChecker.isContainsPigTrigger(messageText))
+            eventMessage.addReaction(Emoji.fromUnicode("\uD83D\uDC16")).queue();
 
-        if (triggerChecker.isContainsShameTrigger(inputMessage)) {
-            event.getMessage().addReaction(Emoji.fromUnicode("\uD83C\uDDF8")).queue();
-            event.getMessage().addReaction(Emoji.fromUnicode("\uD83C\uDDED")).queue();
-            event.getMessage().addReaction(Emoji.fromUnicode("\uD83C\uDDE6")).queue();
-            event.getMessage().addReaction(Emoji.fromUnicode("\uD83C\uDDF2")).queue();
-            event.getMessage().addReaction(Emoji.fromUnicode("\uD83C\uDDEA")).queue();
+        if (triggerChecker.isContainsShameTrigger(messageText)) {
+            eventMessage.addReaction(Emoji.fromUnicode("\uD83C\uDDF8")).queue();
+            eventMessage.addReaction(Emoji.fromUnicode("\uD83C\uDDED")).queue();
+            eventMessage.addReaction(Emoji.fromUnicode("\uD83C\uDDE6")).queue();
+            eventMessage.addReaction(Emoji.fromUnicode("\uD83C\uDDF2")).queue();
+            eventMessage.addReaction(Emoji.fromUnicode("\uD83C\uDDEA")).queue();
         }
 
-        if (event.getMessage().getContentRaw().contains("\uD83D\uDDF3") &&
-                event.getMessage().getAuthor().getName().equals("evabot")) {
-            event.getMessage().addReaction(Emoji.fromUnicode("1️⃣")).queue();
-            event.getMessage().addReaction(Emoji.fromUnicode("2️⃣")).queue();
+        if (eventMessage.getContentRaw().contains("\uD83D\uDDF3") &&
+                eventMessage.getAuthor().getName().equals("evabot")) {
+            eventMessage.addReaction(Emoji.fromUnicode("1️⃣")).queue();
+            eventMessage.addReaction(Emoji.fromUnicode("2️⃣")).queue();
         }
 
     }
 
     @Override
     public void onReady(@NotNull ReadyEvent event) {
-        var mainChannel = event.getJDA().getGuildById(botConfig.getServerId())
+        var membersSb = new StringBuilder();
+        JDA currentJda = event.getJDA();
+        var mainChannel = currentJda.getGuildById(botConfig.getServerId())
                 .getTextChannelById(botConfig.getMainChatId());
 
-        log.info(event.getJDA().getGuildById(botConfig.getServerId()).getMembers().toString());
+        for (var member : currentJda.getGuildById(botConfig.getServerId()).getMembers()) {
+            membersSb.append(member.getEffectiveName()).append(" (").append(member.getIdLong()).append(")").append("; ");
+        }
+        log.info("Current guild members list:\n{}", membersSb.toString());
+
         mainChannel.sendMessage("✨Утречка!✨\n\uD83D\uDC36Вылезла из будки и берусь за работу!\uD83E\uDD71\uD83D\uDECC")
                 .queue();
 
@@ -113,26 +121,8 @@ public class DiscordEventHandler extends ListenerAdapter {
         var initialDelay = durationBetweenEvent.getSeconds();
         var scheduledService = Executors.newScheduledThreadPool(1);
 
-        scheduledService.scheduleAtFixedRate(() -> {
-            var terpilaId = botFunctionsHelper.earnRandomServerMember();
-            botFunctionsHelper.defineTerpila(event.getJDA().getGuildById(botConfig.getServerId()), terpilaId);
-            var embed = new EmbedBuilder();
-
-            if (terpilaId == botConfig.getBotId()) {
-                embed.setDescription(String.format("\uD83C\uDF89 Поздравляю, <@%s>! Ты **ТЕРПИЛА ДНЯ!** \uD83D\uDE40" +
-                                "\nОй... \uD83D\uDE35\u200D\uD83D\uDCAB\uD83D\uDE35\u200D\uD83D\uDCAB\uD83D\uDE35\u200D\uD83D\uDCAB",
-                        terpilaId));
-            } else {
-                embed.setDescription(String.format("\uD83C\uDF89 Поздравляю, <@%s>! Ты **ТЕРПИЛА ДНЯ!** \uD83D\uDE40",
-                        terpilaId));
-            }
-
-            embed.setDescription(String.format("\uD83C\uDF89 Поздравляю, <@%s>! Ты **ТЕРПИЛА ДНЯ!** \uD83D\uDE40",
-                    terpilaId));
-            embed.setColor(Color.RED);
-
-            mainChannel.sendMessageEmbeds(embed.build()).queue();
-        }, initialDelay, TimeUnit.DAYS.toSeconds(1), TimeUnit.SECONDS).isDone();
+        scheduledService.scheduleAtFixedRate(() -> botFunctionsHelper.scheduledTerpilaTask(currentJda, mainChannel),
+                initialDelay, TimeUnit.DAYS.toSeconds(1), TimeUnit.SECONDS).isDone();
 
     }
 

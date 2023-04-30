@@ -4,10 +4,14 @@ import io.jkelly.evadiscordbot.config.BotConfig;
 import io.jkelly.evadiscordbot.config.YamlConfig;
 import io.jkelly.evadiscordbot.service.UserService;
 import lombok.extern.log4j.Log4j2;
+import net.dv8tion.jda.api.EmbedBuilder;
+import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.*;
+import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
+import java.awt.*;
 import java.util.Random;
 
 @Component
@@ -61,10 +65,31 @@ public class BotFunctionsHelper {
                 guild.getRoleById(botConfig.getTerpilaRoleId())).complete();
     }
 
-    public long earnRandomServerMember() {
+    private long earnRandomServerMember() {
         var users = userService.getAllUser();
         var userId = users.get(random.nextInt(users.size())).getDiscordId();
         log.info("Received random user id {}", userId);
         return userId;
     }
+
+    public void scheduledTerpilaTask(JDA currentJda, TextChannel mainChannel) {
+        var terpilaId = earnRandomServerMember();
+        defineTerpila(currentJda.getGuildById(botConfig.getServerId()), terpilaId);
+        var embed = new EmbedBuilder();
+
+        if (terpilaId == botConfig.getBotId()) {
+            embed.setDescription(String.format("\uD83C\uDF89 Поздравляю, <@%s>! Ты **ТЕРПИЛА ДНЯ!** \uD83D\uDE40" +
+                            "\nОй... \uD83D\uDE35\u200D\uD83D\uDCAB\uD83D\uDE35\u200D\uD83D\uDCAB\uD83D\uDE35\u200D\uD83D\uDCAB",
+                    terpilaId));
+        } else {
+            embed.setDescription(String.format("\uD83C\uDF89 Поздравляю, <@%s>! Ты **ТЕРПИЛА ДНЯ!** \uD83D\uDE40",
+                    terpilaId));
+        }
+
+        embed.setDescription(String.format("\uD83C\uDF89 Поздравляю, <@%s>! Ты **ТЕРПИЛА ДНЯ!** \uD83D\uDE40",
+                terpilaId));
+        embed.setColor(Color.RED);
+        mainChannel.sendMessageEmbeds(embed.build()).queue();
+    }
+
 }
