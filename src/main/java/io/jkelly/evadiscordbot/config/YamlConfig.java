@@ -26,4 +26,6 @@ public class YamlConfig {
 
     private List<String> shameList;
 
+    private List<String> jokerSuffixList;
+
 }

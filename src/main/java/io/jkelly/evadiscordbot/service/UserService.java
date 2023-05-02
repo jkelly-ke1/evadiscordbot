@@ -26,8 +26,13 @@ public class UserService {
     }
 
     @Transactional
-    public void updateUser(long discordId, String updatedUsername) {
+    public void updateUsername(long discordId, String updatedUsername) {
         userRepository.getUserByDiscordId(discordId).ifPresent(user -> user.setUsername(updatedUsername));
+    }
+
+    @Transactional
+    public void updateUserPenaltyPoint(long discordId, int penaltyPoint) {
+        userRepository.getUserByDiscordId(discordId).ifPresent(user -> user.setPenaltyPoint(penaltyPoint));
     }
 
     public List<User> getAllUser() {

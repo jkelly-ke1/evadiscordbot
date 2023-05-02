@@ -23,4 +23,7 @@ public class User implements Serializable {
     @Column(name = "username")
     private String username;
 
+    @Column(name = "penalty_point")
+    private int penaltyPoint;
+
 }

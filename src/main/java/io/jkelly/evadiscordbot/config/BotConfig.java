@@ -11,7 +11,7 @@ import org.springframework.context.annotation.PropertySource;
 @NoArgsConstructor
 @Getter
 @Setter
-@PropertySource("/application.properties")
+@PropertySource(value = "/application.properties", encoding = "UTF-8")
 public class BotConfig {
 
     @Value("${discord.bot.token}")
@@ -26,13 +26,16 @@ public class BotConfig {
     @Value("${discord.bot.myGuildId}")
     private long serverId;
 
-    @Value("${discord.bot.myGuildTerpilaRoleName}")
-    private String terpilaRoleName;
-
     @Value("${discord.bot.myGuildTerpilaRoleId}")
     private long terpilaRoleId;
 
     @Value("${discord.bot.mainChatId}")
     private long mainChatId;
+
+    @Value("${discord.bot.maxPenaltyPoint}")
+    private int maxPenaltyPoint;
+
+    @Value("${discord.bot.helpEmbedGifLink}")
+    private String helpEmbedGifLink;
 
 }

@@ -43,6 +43,7 @@ public class MessageService {
             var user = new User();
             user.setDiscordId(event.getMessage().getAuthor().getIdLong());
             user.setUsername(event.getMessage().getAuthor().getName());
+            user.setPenaltyPoint(0);
             userService.addUser(user);
             return user;
         }

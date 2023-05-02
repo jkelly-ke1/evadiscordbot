@@ -4,7 +4,6 @@ import io.jkelly.evadiscordbot.config.BotConfig;
 import io.jkelly.evadiscordbot.util.BotFunctionsHelper;
 import io.jkelly.evadiscordbot.util.TriggerChecker;
 import lombok.extern.log4j.Log4j2;
-import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
 import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
@@ -19,7 +18,6 @@ import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.awt.*;
 import java.time.Duration;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -60,19 +58,32 @@ public class DiscordEventHandler extends ListenerAdapter {
     @Override
     public void onMessageReceived(MessageReceivedEvent event) {
         var eventMessage = event.getMessage();
+        var eventChannel = event.getChannel();
         var messageText = eventMessage.getContentRaw();
 
         if (botConfig.isLoggingEnabled())
             messageService.addMessage(event);
 
-        if (messageText.equals("!woof"))
-            event.getChannel().sendMessage(String.format("Woof-woof, <@%s>!", event.getAuthor().getIdLong())).queue();
+        if (messageText.startsWith("!jokepenalty "))
+            eventChannel.sendMessage(botFunctionsHelper.addAndCheckPenaltyToUser(messageText, event.getJDA())).queue();
+
+        if (messageText.startsWith("!restore "))
+            eventChannel.sendMessage(botFunctionsHelper.restorePenalty(messageText, event.getJDA())).queue();
 
         if (messageText.startsWith("!кто "))
-            event.getChannel().sendMessage(botFunctionsHelper.makeWhoAnswer(messageText)).queue();
+            eventMessage.reply(botFunctionsHelper.makeWhoAnswer(messageText)).queue();
 
         if (messageText.startsWith("!у кого "))
-            event.getChannel().sendMessage(botFunctionsHelper.makeWhomAnswer(messageText)).queue();
+            eventMessage.reply(botFunctionsHelper.makeWhomAnswer(messageText)).queue();
+
+        if (messageText.startsWith("!woof"))
+            eventMessage.reply(String.format("Woof-woof, <@%s>!", event.getAuthor().getIdLong())).queue();
+
+        if (messageText.equals("!help"))
+            botFunctionsHelper.makeHelpMessage(eventChannel);
+
+        if (messageText.startsWith("!avatar "))
+            botFunctionsHelper.makeUserAvatarEmbed(messageText, event.getJDA(), eventChannel);
 
         if (triggerChecker.isContainsMageTrigger(messageText))
             eventMessage.addReaction(Emoji.fromUnicode("\uD83E\uDDD9")).queue();
@@ -99,7 +110,7 @@ public class DiscordEventHandler extends ListenerAdapter {
     @Override
     public void onReady(@NotNull ReadyEvent event) {
         var membersSb = new StringBuilder();
-        JDA currentJda = event.getJDA();
+        var currentJda = event.getJDA();
         var mainChannel = currentJda.getGuildById(botConfig.getServerId())
                 .getTextChannelById(botConfig.getMainChatId());
 
@@ -139,7 +150,7 @@ public class DiscordEventHandler extends ListenerAdapter {
     public void onUserUpdateName(UserUpdateNameEvent event) {
         log.info("User {} (id '{}') changed his username to {}!",
                 event.getOldName(), event.getUser().getIdLong(), event.getNewName());
-        userService.updateUser(event.getUser().getIdLong(), event.getNewName());
+        userService.updateUsername(event.getUser().getIdLong(), event.getNewName());
     }
 
     @Override
