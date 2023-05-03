@@ -26,4 +26,7 @@ public class User implements Serializable {
     @Column(name = "penalty_point")
     private int penaltyPoint;
 
+    @Column(name = "penalty_cooldown")
+    private boolean onPenaltyCooldown;
+
 }

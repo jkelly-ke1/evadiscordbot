@@ -103,89 +103,96 @@ public class BotFunctionsHelper {
         channel.sendMessageEmbeds(embed.build()).queue();
     }
 
-    public String addAndCheckPenaltyToUser(String message, JDA jda, long authorId) {
+    public String addAndCheckPenaltyToUser(String message, JDA jda, long commandAuthorId) {
         var userIdSubstring = message.substring(message.indexOf("@") + 1, message.lastIndexOf(">"));
-        var substringUserId = Long.parseLong(userIdSubstring);
-        var resultMessageBuilder = new StringBuilder();
+        var userId = Long.parseLong(userIdSubstring);
+        var responseMessageBuilder = new StringBuilder();
 
-        if (substringUserId != authorId) {
-            if (userService.getUserByDiscordId(substringUserId).isPresent()) {
-                var currentUserPenaltyPoints = userService.getUserByDiscordId(substringUserId)
-                        .get().getPenaltyPoint();
+        if (!userService.getUserByDiscordId(commandAuthorId).get().isOnPenaltyCooldown()) {
+            if (userId != commandAuthorId) {
+                if (userService.getUserByDiscordId(userId).isPresent()) {
+                    var currentUserPenaltyPoints = userService.getUserByDiscordId(userId)
+                            .get().getPenaltyPoint();
 
-                if (currentUserPenaltyPoints >= 0 && currentUserPenaltyPoints < botConfig.getMaxPenaltyPoint()) {
-                    userService.updateUserPenaltyPoint(substringUserId, currentUserPenaltyPoints + 1);
+                    if (currentUserPenaltyPoints >= 0 && currentUserPenaltyPoints < botConfig.getMaxPenaltyPoint()) {
+                        userService.updateUserPenaltyPoint(userId, currentUserPenaltyPoints + 1);
+                        userService.updateUserPenaltyCooldown(commandAuthorId, true);
 
-                    if (userService.getUserByDiscordId(substringUserId).get()
-                            .getPenaltyPoint() == botConfig.getMaxPenaltyPoint() - 1) {
-                        resultMessageBuilder.append("Пользователю <@").append(substringUserId).append(">")
-                                .append(" добавлен **один штрафной балл**!")
-                                .append("\nОсторожно, последнее предупреждение! :rat_sight:");
+                        if (userService.getUserByDiscordId(userId).get()
+                                .getPenaltyPoint() == botConfig.getMaxPenaltyPoint() - 1) {
+                            responseMessageBuilder.append("Пользователю <@").append(userId).append(">")
+                                    .append(" добавлен **один штрафной балл**!")
+                                    .append("\nОсторожно, последнее предупреждение! <:rat_sight:1079427636717166612>");
 
-                    } else if (userService.getUserByDiscordId(substringUserId).get()
-                            .getPenaltyPoint() == botConfig.getMaxPenaltyPoint() / 2) {
-                        resultMessageBuilder.append("Пользователю <@").append(substringUserId).append(">")
-                                .append(" добавлен **один штрафной балл**!")
-                                .append("\nУ тебя еще есть шанс *извиниться*! <:jokei:1035142207306481704>");
+                        } else if (userService.getUserByDiscordId(userId).get()
+                                .getPenaltyPoint() == botConfig.getMaxPenaltyPoint() / 2) {
+                            responseMessageBuilder.append("Пользователю <@").append(userId).append(">")
+                                    .append(" добавлен **один штрафной балл**!")
+                                    .append("\nУ тебя еще есть шанс *извиниться*! <:jokei:1035142207306481704>");
 
-                    } else if (userService.getUserByDiscordId(substringUserId).get()
-                            .getPenaltyPoint() == botConfig.getMaxPenaltyPoint()) {
-                        try {
-                            userService.updateUserPenaltyPoint(substringUserId, 0);
-                            commitPenaltyByNickname(jda, substringUserId, earnRandomJokerSuffix());
-                            resultMessageBuilder.append(":clown: Ну и ну, вы расстроить партия! Штрафные санкции вам, <@")
-                                    .append(substringUserId).append(">! <:rjobomba:1049320943912230972>");
-                        } catch (HierarchyException hierarchyException) {
-                            userService.updateUserPenaltyPoint(substringUserId, 0);
-                            resultMessageBuilder.append("\uD83D\uDCA2 Из за ограничения моей роли я не могу наказать тебя, <@")
-                                    .append(substringUserId).append(">...").append("\nНо знай что лично я... " +
-                                            "тебя ***крайне осуждаю***")
-                                    .append(" <:rat_sight:1079427636717166612> " +
-                                            "<:rat_sight:1079427636717166612> <:rat_sight:1079427636717166612>");
-                            log.warn("Hierarchy exception was caught. " +
-                                    "Can't change {} nickname due role restrictions", substringUserId);
+                        } else if (userService.getUserByDiscordId(userId).get()
+                                .getPenaltyPoint() == botConfig.getMaxPenaltyPoint()) {
+                            try {
+                                userService.updateUserPenaltyPoint(userId, 0);
+                                commitPenaltyByNickname(jda, userId, earnRandomJokerSuffix());
+                                responseMessageBuilder.append(":clown: Ну и ну, вы расстроить партия! Штрафные санкции вам, <@")
+                                        .append(userId).append(">! <:rjobomba:1049320943912230972>");
+                            } catch (HierarchyException hierarchyException) {
+                                userService.updateUserPenaltyPoint(userId, 0);
+                                responseMessageBuilder.append("\uD83D\uDCA2 Из за ограничения моей роли я не могу наказать тебя, <@")
+                                        .append(userId).append(">...").append("\nНо знай что лично я... " +
+                                                "тебя ***крайне осуждаю***")
+                                        .append(" <:rat_sight:1079427636717166612> " +
+                                                "<:rat_sight:1079427636717166612> <:rat_sight:1079427636717166612>");
+                                log.warn("Hierarchy exception was caught. " +
+                                        "Can't change {} nickname due role restrictions", userId);
+                            }
+
+                        } else {
+                            responseMessageBuilder.append("<:bruh:1050845792266616922> Пользователю <@")
+                                    .append(userId).append(">")
+                                    .append(" добавлен **один штрафной балл**!");
                         }
-
-                    } else {
-                        resultMessageBuilder.append("<:bruh:1050845792266616922> Пользователю <@")
-                                .append(substringUserId).append(">")
-                                .append(" добавлен **один штрафной балл**!");
+                        log.info("User {} ({}) joker penalty point: {}",
+                                jda.getGuildById(botConfig.getServerId()).getMemberById(userId).getEffectiveName(),
+                                userId, userService.getUserByDiscordId(userId).get().getPenaltyPoint());
                     }
-                    log.info("User {} ({}) joker penalty point: {}",
-                            jda.getGuildById(botConfig.getServerId()).getMemberById(substringUserId).getEffectiveName(),
-                            substringUserId, userService.getUserByDiscordId(substringUserId).get().getPenaltyPoint());
                 }
+            } else {
+                responseMessageBuilder
+                        .append(String.format("<:confused_rat:1079428095599194194> " +
+                                "**Себя надо любить а не наказывать, <@%s>!**" +
+                                "\nВыдавать предупреждения самому себе запрещено!", commandAuthorId));
             }
         } else {
-            resultMessageBuilder
-                    .append(String.format("<:confused_rat:1079428095599194194> " +
-                            "**Себя надо любить а не наказывать, <@%s>!**" +
-                            "\nВыдавать предупреждения самому себе запрещено!", authorId));
+            responseMessageBuilder.append(String.format("<@%s>\n❌ Вы уже использовали свое предупреждение. " +
+                    "Возвращайтесь __***завтре***__! <:buket_tebe:1097898534126231633>", commandAuthorId));
         }
-        return resultMessageBuilder.toString();
+
+        return responseMessageBuilder.toString();
     }
 
-    public String restorePenalty(String message, JDA jda, long authorId) {
+    public String restorePenalty(String message, JDA jda, long commandAuthorId) {
         var userIdSubstring = message.substring(message.indexOf("@") + 1, message.lastIndexOf(">"));
-        var substringUserId = Long.parseLong(userIdSubstring);
+        var userId = Long.parseLong(userIdSubstring);
         var currentGuild = jda.getGuildById(botConfig.getServerId());
         var resultMessageBuilder = new StringBuilder();
 
-        if (substringUserId != authorId) {
+        if (userId != commandAuthorId) {
             if (currentGuild != null) {
-                if (userService.getUserByDiscordId(substringUserId).isPresent()) {
-                    userService.updateUserPenaltyPoint(substringUserId, 0);
-                    var currentMember = currentGuild.getMember(UserSnowflake.fromId(substringUserId));
+                if (userService.getUserByDiscordId(userId).isPresent()) {
+                    userService.updateUserPenaltyPoint(userId, 0);
+                    var currentMember = currentGuild.getMember(UserSnowflake.fromId(userId));
                     var modifiedNickname = currentMember.getEffectiveName();
                     currentMember.modifyNickname(modifiedNickname.replaceAll("\\([^()]*\\)", "").trim())
                             .queue();
-                    resultMessageBuilder.append(":eyes: Пользователь <@").append(substringUserId).append(">")
+                    resultMessageBuilder.append(":eyes: Пользователь <@").append(userId).append(">")
                             .append(" **помилован и восстановлен**! Смотри мне блин!<:rat_sight:1079427636717166612>");
                 }
             }
         } else {
             resultMessageBuilder.append(String.format("<:rat_sight:1079427636717166612> Очень хитро, <@%s>..." +
-                    "\nНо снимать с себя наказание **нельзя**!", authorId));
+                    "\nНо снимать с себя наказание **нельзя**!", commandAuthorId));
         }
 
         return resultMessageBuilder.toString();
@@ -195,7 +202,8 @@ public class BotFunctionsHelper {
         var embed = new EmbedBuilder();
         var jokePenaltyDescription = String.format("Выдать предупреждение пользователю. " +
                         "Если количество предупреждений превысит некоторое значение (а сейчас это %s), " +
-                        "то этот пользователь будет наказан <:sakagami:1049399866826178601>",
+                        "то этот пользователь будет наказан <:sakagami:1049399866826178601>" +
+                        "\nДоступно один раз в день.",
                 botConfig.getMaxPenaltyPoint());
 
         embed.setColor(Color.CYAN)
@@ -203,11 +211,11 @@ public class BotFunctionsHelper {
                 .setTitle("Меню помощи! (мне бы кто помог)<:dumb_rat:1079429073446637698>")
                 .setDescription("Здесь находится список всех команд которые доступны на данный момент!")
                 .addField("**!woof**", "Сделать вуф!", false)
-                .addField("**!jokepenalty** %участник_нейм%", jokePenaltyDescription, false)
-                .addField("**!restore** %участник_нейм%", "Простить участника и снять нокозание", false)
+                .addField("**!jokepenalty** %@участник_нейм%", jokePenaltyDescription, false)
+                .addField("**!restore** %@участник_нейм%", "Простить участника и снять нокозание", false)
                 .addField("**!кто** %вопрос%", "Задать мне вопрос!", false)
                 .addField("**!у кого** %вопрос%", "Тоже задать мне вопрос!!!", false)
-                .addField("**!avatar** %участник_нейм%", "Получить аватарку пользователя", false)
+                .addField("**!avatar** %@участник_нейм%", "Получить аватарку пользователя", false)
                 .addField("**!help**", "Увидеть это сообщение", false);
 
         channel.sendMessageEmbeds(embed.build()).queue();

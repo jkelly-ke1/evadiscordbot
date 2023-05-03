@@ -44,6 +44,7 @@ public class MessageService {
             user.setDiscordId(event.getMessage().getAuthor().getIdLong());
             user.setUsername(event.getMessage().getAuthor().getName());
             user.setPenaltyPoint(0);
+            user.setOnPenaltyCooldown(false);
             userService.addUser(user);
             return user;
         }

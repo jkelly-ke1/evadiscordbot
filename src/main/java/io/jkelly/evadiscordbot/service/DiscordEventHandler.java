@@ -1,6 +1,7 @@
 package io.jkelly.evadiscordbot.service;
 
 import io.jkelly.evadiscordbot.config.BotConfig;
+import io.jkelly.evadiscordbot.models.User;
 import io.jkelly.evadiscordbot.util.BotFunctionsHelper;
 import io.jkelly.evadiscordbot.util.TriggerChecker;
 import lombok.extern.log4j.Log4j2;
@@ -109,6 +110,7 @@ public class DiscordEventHandler extends ListenerAdapter {
 
     }
 
+    // use to send startup message, define new terpila and reset penalty cooldown
     @Override
     public void onReady(@NotNull ReadyEvent event) {
         var membersSb = new StringBuilder();
@@ -134,7 +136,10 @@ public class DiscordEventHandler extends ListenerAdapter {
         var initialDelay = durationBetweenEvent.getSeconds();
         var scheduledService = Executors.newScheduledThreadPool(1);
 
-        scheduledService.scheduleAtFixedRate(() -> botFunctionsHelper.scheduledTerpilaTask(currentJda, mainChannel),
+        scheduledService.scheduleAtFixedRate(() -> {
+                    botFunctionsHelper.scheduledTerpilaTask(currentJda, mainChannel);
+                    userService.getAllUser().forEach(user -> userService.updateUserPenaltyCooldown(user.getId(), false));
+                },
                 initialDelay, TimeUnit.DAYS.toSeconds(1), TimeUnit.SECONDS).isDone();
 
     }

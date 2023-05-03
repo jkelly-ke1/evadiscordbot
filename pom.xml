@@ -10,7 +10,7 @@
 	</parent>
 	<groupId>io.jkelly</groupId>
 	<artifactId>evadiscordbot</artifactId>
-	<version>0.0.5-SNAPSHOT</version>
+	<version>0.0.6-SNAPSHOT</version>
 	<name>evadiscordbot</name>
 	<description>Bot for my Discord server</description>
 	<properties>
