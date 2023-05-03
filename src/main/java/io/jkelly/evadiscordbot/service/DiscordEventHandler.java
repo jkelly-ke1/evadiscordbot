@@ -65,10 +65,12 @@ public class DiscordEventHandler extends ListenerAdapter {
             messageService.addMessage(event);
 
         if (messageText.startsWith("!jokepenalty "))
-            eventChannel.sendMessage(botFunctionsHelper.addAndCheckPenaltyToUser(messageText, event.getJDA())).queue();
+            eventChannel.sendMessage(botFunctionsHelper.addAndCheckPenaltyToUser(messageText, event.getJDA(),
+                    eventMessage.getAuthor().getIdLong())).queue();
 
         if (messageText.startsWith("!restore "))
-            eventChannel.sendMessage(botFunctionsHelper.restorePenalty(messageText, event.getJDA())).queue();
+            eventChannel.sendMessage(botFunctionsHelper.restorePenalty(messageText, event.getJDA(),
+                    eventMessage.getAuthor().getIdLong())).queue();
 
         if (messageText.startsWith("!кто "))
             eventMessage.reply(botFunctionsHelper.makeWhoAnswer(messageText)).queue();
