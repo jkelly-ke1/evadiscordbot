@@ -154,7 +154,7 @@ public class BotFunctionsHelper {
                                     .append(" добавлен **один штрафной балл**!");
                         }
                         log.info("User {} ({}) joker penalty point: {}",
-                                jda.getGuildById(botConfig.getServerId()).getMemberById(userId).getEffectiveName(),
+                                jda.getGuildById(botConfig.getServerId()).getMemberById(userId).getUser().getName(),
                                 userId, userService.getUserByDiscordId(userId).get().getPenaltyPoint());
                     }
                 }
@@ -176,26 +176,32 @@ public class BotFunctionsHelper {
         var userIdSubstring = message.substring(message.indexOf("@") + 1, message.lastIndexOf(">"));
         var userId = Long.parseLong(userIdSubstring);
         var currentGuild = jda.getGuildById(botConfig.getServerId());
-        var resultMessageBuilder = new StringBuilder();
+        var responseMessageBuilder = new StringBuilder();
 
-        if (userId != commandAuthorId) {
-            if (currentGuild != null) {
-                if (userService.getUserByDiscordId(userId).isPresent()) {
-                    userService.updateUserPenaltyPoint(userId, 0);
-                    var currentMember = currentGuild.getMember(UserSnowflake.fromId(userId));
-                    var modifiedNickname = currentMember.getEffectiveName();
-                    currentMember.modifyNickname(modifiedNickname.replaceAll("\\([^()]*\\)", "").trim())
-                            .queue();
-                    resultMessageBuilder.append(":eyes: Пользователь <@").append(userId).append(">")
-                            .append(" **помилован и восстановлен**! Смотри мне блин!<:rat_sight:1079427636717166612>");
+        if (!userService.getUserByDiscordId(commandAuthorId).get().isOnPenaltyCooldown()) {
+            if (userId != commandAuthorId) {
+                if (currentGuild != null) {
+                    if (userService.getUserByDiscordId(userId).isPresent()) {
+                        userService.updateUserPenaltyPoint(userId, 0);
+                        var currentMember = currentGuild.getMember(UserSnowflake.fromId(userId));
+                        var modifiedNickname = currentMember.getEffectiveName();
+                        currentMember.modifyNickname(modifiedNickname.replaceAll("\\([^()]*\\)", "").trim())
+                                .queue();
+                        responseMessageBuilder.append(":eyes: Пользователь <@").append(userId).append(">")
+                                .append(" **помилован и восстановлен**! Смотри мне блин!<:rat_sight:1079427636717166612>");
+                    }
                 }
+            } else {
+                responseMessageBuilder.append(String.format("<:rat_sight:1079427636717166612> Очень хитро, <@%s>..." +
+                        "\nНо снимать с себя наказание **нельзя**!", commandAuthorId));
             }
         } else {
-            resultMessageBuilder.append(String.format("<:rat_sight:1079427636717166612> Очень хитро, <@%s>..." +
-                    "\nНо снимать с себя наказание **нельзя**!", commandAuthorId));
+            responseMessageBuilder.append(String.format("<@%s>\n❌ Вы уже использовали свою возможность " +
+                    "менять уровень предупреждения на сегодня. " +
+                    "Возвращайтесь __***завтре***__! <:mda:1100928775539134494>", commandAuthorId));
         }
 
-        return resultMessageBuilder.toString();
+        return responseMessageBuilder.toString();
     }
 
     public void makeHelpMessage(MessageChannelUnion channel) {
@@ -219,6 +225,11 @@ public class BotFunctionsHelper {
                 .addField("**!help**", "Увидеть это сообщение", false);
 
         channel.sendMessageEmbeds(embed.build()).queue();
+    }
+
+    public void refreshPenaltyCooldown() {
+        userService.getAllUser().forEach(user -> userService.updateUserPenaltyCooldown(user.getDiscordId(), false));
+        log.info("Penalty cooldown was refreshed");
     }
 
     private void commitPenaltyByNickname(JDA jda, long userId, String nicknameSuffix) {

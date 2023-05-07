@@ -1,14 +1,12 @@
 package io.jkelly.evadiscordbot.service;
 
 import io.jkelly.evadiscordbot.config.BotConfig;
-import io.jkelly.evadiscordbot.models.User;
 import io.jkelly.evadiscordbot.util.BotFunctionsHelper;
 import io.jkelly.evadiscordbot.util.TriggerChecker;
 import lombok.extern.log4j.Log4j2;
-import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.emoji.Emoji;
-import net.dv8tion.jda.api.events.guild.GuildLeaveEvent;
 import net.dv8tion.jda.api.events.guild.member.GuildMemberJoinEvent;
+import net.dv8tion.jda.api.events.guild.member.GuildMemberRemoveEvent;
 import net.dv8tion.jda.api.events.interaction.command.SlashCommandInteractionEvent;
 import net.dv8tion.jda.api.events.message.MessageReceivedEvent;
 import net.dv8tion.jda.api.events.session.ReadyEvent;
@@ -119,7 +117,8 @@ public class DiscordEventHandler extends ListenerAdapter {
                 .getTextChannelById(botConfig.getMainChatId());
 
         for (var member : currentJda.getGuildById(botConfig.getServerId()).getMembers()) {
-            membersSb.append(member.getEffectiveName()).append(" (").append(member.getIdLong()).append(")").append("; ");
+            membersSb.append(member.getUser().getName())
+                    .append(" (").append(member.getIdLong()).append(")").append("; ");
         }
         log.info("Current guild members list:\n{}", membersSb.toString());
 
@@ -127,7 +126,7 @@ public class DiscordEventHandler extends ListenerAdapter {
                 .queue();
 
         var now = ZonedDateTime.now(ZoneId.of("Europe/Kiev"));
-        var nextTime = now.withHour(13).withMinute(15).withSecond(0);
+        var nextTime = now.withHour(12).withMinute(30).withSecond(0);
 
         if (now.compareTo(nextTime) > 0)
             nextTime = nextTime.plusDays(1);
@@ -138,7 +137,7 @@ public class DiscordEventHandler extends ListenerAdapter {
 
         scheduledService.scheduleAtFixedRate(() -> {
                     botFunctionsHelper.scheduledTerpilaTask(currentJda, mainChannel);
-                    userService.getAllUser().forEach(user -> userService.updateUserPenaltyCooldown(user.getId(), false));
+                    botFunctionsHelper.refreshPenaltyCooldown();
                 },
                 initialDelay, TimeUnit.DAYS.toSeconds(1), TimeUnit.SECONDS).isDone();
 
@@ -170,12 +169,11 @@ public class DiscordEventHandler extends ListenerAdapter {
     }
 
     @Override
-    public void onGuildLeave(GuildLeaveEvent event) {
+    public void onGuildMemberRemove(GuildMemberRemoveEvent event) {
         var mainChannel = event.getJDA()
                 .getGuildById(botConfig.getServerId()).getTextChannelById(botConfig.getMainChatId());
         mainChannel.sendMessage(String.format("Пока, <@%s>. \nТебя будет не хватать... \uD83E\uDD7A",
-                event.getJDA().getSelfUser().getIdLong())).queue();
-
+                event.getUser().getIdLong())).queue();
     }
 
     public void vote(SlashCommandInteractionEvent event, String subjectText, String firstOption, String secondOption) {
