@@ -83,6 +83,9 @@ public class DiscordEventHandler extends ListenerAdapter {
         if (messageText.equals("!help"))
             botFunctionsHelper.makeHelpMessage(eventChannel);
 
+        if (messageText.equals("!rr"))
+            eventMessage.reply(botFunctionsHelper.rollBarrel(event.getJDA(), event.getAuthor().getIdLong())).queue();
+
         if (messageText.startsWith("!avatar "))
             botFunctionsHelper.makeUserAvatarEmbed(messageText, event.getJDA(), eventChannel);
 
@@ -138,6 +141,8 @@ public class DiscordEventHandler extends ListenerAdapter {
         scheduledService.scheduleAtFixedRate(() -> {
                     botFunctionsHelper.scheduledTerpilaTask(currentJda, mainChannel);
                     botFunctionsHelper.refreshPenaltyCooldown();
+                    botFunctionsHelper.refreshRouletteCooldown();
+
                 },
                 initialDelay, TimeUnit.DAYS.toSeconds(1), TimeUnit.SECONDS).isDone();
 

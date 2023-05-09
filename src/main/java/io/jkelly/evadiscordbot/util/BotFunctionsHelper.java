@@ -62,6 +62,7 @@ public class BotFunctionsHelper {
                 guild.getMember(UserSnowflake.fromId(terpilaId)).getUser().getName(), terpilaId);
     }
 
+    // keep 'public' for possible uses in future
     public void removeTerpila(Guild guild, long discordUserid) {
         guild.removeRoleFromMember(UserSnowflake.fromId(discordUserid),
                 guild.getRoleById(botConfig.getTerpilaRoleId())).complete();
@@ -204,6 +205,36 @@ public class BotFunctionsHelper {
         return responseMessageBuilder.toString();
     }
 
+    public String rollBarrel(JDA jda, long commandAuthorId) {
+        var responseMessageBuilder = new StringBuilder();
+
+        if (!userService.getUserByDiscordId(commandAuthorId).get().isOnRouletteCooldown()) {
+            userService.updateUserRouletteCooldown(commandAuthorId, true);
+
+            if (random.nextInt(7) == 6) {
+                try {
+                    responseMessageBuilder.append("\\uD83C\\uDFB2 Крутим барабан...")
+                            .append("\n\uD83D\uDCA5<:revolver:1105169657171804234> Бам! Ты умер. :skull:");
+                    jda.getGuildById(botConfig.getServerId()).kick(UserSnowflake.fromId(commandAuthorId)).queue();
+                    userService.updateUserRouletteCooldown(commandAuthorId, false);
+                } catch (HierarchyException hierarchyException) {
+                    responseMessageBuilder.append("\\uD83C\\uDFB2 Крутим барабан...")
+                            .append("\n<:rat_sight:1079427636717166612> При обычных обстоятельствах ты бы умер, " +
+                                    "но тебя спасло то что я ограниченна своей ролью. ")
+                            .append("\nКороче притворись мертвым <:rat_sight:1079427636717166612>");
+                }
+            } else {
+                responseMessageBuilder.append("\uD83C\uDFB2 Крутим барабан...")
+                        .append("\n\uD83D\uDE0F В этот раз повезло");
+            }
+        } else {
+            responseMessageBuilder.append(String.format("<@%s>\n❌ Вы уже крутили барабан сегодня. " +
+                    "Приходите завтра... <:jokei:1035142207306481704>", commandAuthorId));
+        }
+
+        return responseMessageBuilder.toString();
+    }
+
     public void makeHelpMessage(MessageChannelUnion channel) {
         var embed = new EmbedBuilder();
         var jokePenaltyDescription = String.format("Выдать предупреждение пользователю. " +
@@ -219,6 +250,7 @@ public class BotFunctionsHelper {
                 .addField("**!woof**", "Сделать вуф!", false)
                 .addField("**!jokepenalty** %@участник_нейм%", jokePenaltyDescription, false)
                 .addField("**!restore** %@участник_нейм%", "Простить участника и снять нокозание", false)
+                .addField("**!rr**", "Сыграть в рулетку. Смертельно опасно :skull_crossbones:", false)
                 .addField("**!кто** %вопрос%", "Задать мне вопрос!", false)
                 .addField("**!у кого** %вопрос%", "Тоже задать мне вопрос!!!", false)
                 .addField("**!avatar** %@участник_нейм%", "Получить аватарку пользователя", false)
@@ -230,6 +262,11 @@ public class BotFunctionsHelper {
     public void refreshPenaltyCooldown() {
         userService.getAllUser().forEach(user -> userService.updateUserPenaltyCooldown(user.getDiscordId(), false));
         log.info("Penalty cooldown was refreshed");
+    }
+
+    public void refreshRouletteCooldown() {
+        userService.getAllUser().forEach(user -> userService.updateUserRouletteCooldown(user.getDiscordId(), false));
+        log.info("Roulette cooldown was refreshed");
     }
 
     private void commitPenaltyByNickname(JDA jda, long userId, String nicknameSuffix) {

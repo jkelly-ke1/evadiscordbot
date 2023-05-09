@@ -29,4 +29,7 @@ public class User implements Serializable {
     @Column(name = "penalty_cooldown")
     private boolean onPenaltyCooldown;
 
+    @Column(name = "roulette_cooldown")
+    private boolean onRouletteCooldown;
+
 }

@@ -45,6 +45,7 @@ public class MessageService {
             user.setUsername(event.getMessage().getAuthor().getName());
             user.setPenaltyPoint(0);
             user.setOnPenaltyCooldown(false);
+            user.setOnRouletteCooldown(false);
             userService.addUser(user);
             return user;
         }
