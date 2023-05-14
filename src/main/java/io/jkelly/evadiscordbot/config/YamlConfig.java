@@ -28,4 +28,6 @@ public class YamlConfig {
 
     private List<String> jokerSuffixList;
 
+    private List<String> botActivityList;
+
 }

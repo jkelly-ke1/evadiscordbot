@@ -213,15 +213,18 @@ public class BotFunctionsHelper {
 
             if (random.nextInt(7) == 6) {
                 try {
-                    responseMessageBuilder.append("\\uD83C\\uDFB2 Крутим барабан...")
+                    responseMessageBuilder.append("\uD83C\uDFB2 Крутим барабан...")
                             .append("\n\uD83D\uDCA5<:revolver:1105169657171804234> Бам! Ты умер. :skull:");
-                    jda.getGuildById(botConfig.getServerId()).kick(UserSnowflake.fromId(commandAuthorId)).queue();
+                    jda.getGuildById(botConfig.getServerId())
+                            .kick(UserSnowflake.fromId(commandAuthorId)).queue();
                     userService.updateUserRouletteCooldown(commandAuthorId, false);
                 } catch (HierarchyException hierarchyException) {
-                    responseMessageBuilder.append("\\uD83C\\uDFB2 Крутим барабан...")
-                            .append("\n<:rat_sight:1079427636717166612> При обычных обстоятельствах ты бы умер, " +
+                    responseMessageBuilder
+                            .append("\n\uD83E\uDD2C При обычных обстоятельствах ты бы умер, " +
                                     "но тебя спасло то что я ограниченна своей ролью. ")
                             .append("\nКороче притворись мертвым <:rat_sight:1079427636717166612>");
+                    log.warn("Hierarchy exception was caught. " +
+                            "Can't kick {} due role restrictions", commandAuthorId);
                 }
             } else {
                 responseMessageBuilder.append("\uD83C\uDFB2 Крутим барабан...")
@@ -289,6 +292,11 @@ public class BotFunctionsHelper {
     private String earnRandomJokerSuffix() {
         var jokers = yamlConfig.getJokerSuffixList();
         return jokers.get(random.nextInt(jokers.size()));
+    }
+
+    public String earnRandomActivityStatus() {
+        var activities = yamlConfig.getBotActivityList();
+        return activities.get(random.nextInt(activities.size()));
     }
 
 }
