@@ -15,14 +15,11 @@ import org.springframework.stereotype.Component;
 @Component
 public class BotInitializer {
 
-    @Autowired
-    BotFunctionsHelper functionsHelper;
-
     public BotInitializer(BotConfig botConfig, DiscordEventHandler discordEventHandler) {
         var jda = JDABuilder.createDefault(botConfig.getBotToken())
                 .setChunkingFilter(ChunkingFilter.ALL)
                 .setMemberCachePolicy(MemberCachePolicy.ALL)
-                .setActivity(Activity.listening(functionsHelper.earnRandomActivityStatus()))
+                .setActivity(Activity.listening("Megadeth"))
                 .enableIntents(GatewayIntent.MESSAGE_CONTENT,
                         GatewayIntent.GUILD_MESSAGE_REACTIONS,
                         GatewayIntent.GUILD_MEMBERS)

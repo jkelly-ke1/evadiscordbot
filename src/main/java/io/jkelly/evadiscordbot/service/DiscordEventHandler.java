@@ -32,15 +32,17 @@ public class DiscordEventHandler extends ListenerAdapter {
     private final MessageService messageService;
     private final UserService userService;
     private final BotConfig botConfig;
+    private final PictureService pictureService;
 
     @Autowired
     public DiscordEventHandler(BotFunctionsHelper botFunctionsHelper, TriggerChecker triggerChecker,
-                               MessageService messageService, UserService userService, BotConfig botConfig) {
+                               MessageService messageService, UserService userService, BotConfig botConfig, PictureService pictureService) {
         this.botFunctionsHelper = botFunctionsHelper;
         this.triggerChecker = triggerChecker;
         this.messageService = messageService;
         this.userService = userService;
         this.botConfig = botConfig;
+        this.pictureService = pictureService;
     }
 
     @Override
@@ -81,7 +83,13 @@ public class DiscordEventHandler extends ListenerAdapter {
             eventMessage.reply(String.format("Woof-woof, <@%s>!", event.getAuthor().getIdLong())).queue();
 
         if (messageText.equals("!help"))
-            botFunctionsHelper.makeHelpMessage(eventChannel);
+            botFunctionsHelper.makeHelpEmbed(eventChannel);
+
+        if (messageText.equals("!showdoge"))
+            pictureService.makeRandomDogPictureEmbed(eventChannel);
+
+        if (messageText.equals("!showfoxy"))
+            pictureService.makeRandomFoxPictureEmbed(eventChannel);
 
         if (messageText.equals("!rr"))
             eventMessage.reply(botFunctionsHelper.rollBarrel(event.getJDA(), event.getAuthor().getIdLong())).queue();

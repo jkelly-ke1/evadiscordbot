@@ -45,6 +45,12 @@ public class UserService {
         userRepository.getUserByDiscordId(discordId).ifPresent(user -> user.setOnRouletteCooldown(haveRouletteCooldown));
     }
 
+    @Transactional
+    public void updateUserPunishmentAmount(long discordId) {
+        userRepository.getUserByDiscordId(discordId).ifPresent(user -> user
+                .setPunishmentAmount(user.getPunishmentAmount() + 1));
+    }
+
     public List<User> getAllUser() {
         return userRepository.findAll();
     }

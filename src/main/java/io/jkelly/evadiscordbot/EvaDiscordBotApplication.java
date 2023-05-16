@@ -3,6 +3,7 @@ package io.jkelly.evadiscordbot;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.context.annotation.Bean;
+import org.springframework.web.client.RestTemplate;
 
 import java.util.Random;
 
@@ -18,4 +19,8 @@ public class EvaDiscordBotApplication {
 		return new Random();
 	}
 
+	@Bean
+	public RestTemplate restTemplate() {
+		return new RestTemplate();
+	}
 }

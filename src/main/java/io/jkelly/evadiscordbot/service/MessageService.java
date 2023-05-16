@@ -46,6 +46,7 @@ public class MessageService {
             user.setPenaltyPoint(0);
             user.setOnPenaltyCooldown(false);
             user.setOnRouletteCooldown(false);
+            user.setPunishmentAmount(0);
             userService.addUser(user);
             return user;
         }

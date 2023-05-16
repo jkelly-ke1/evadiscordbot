@@ -58,6 +58,7 @@ public class BotFunctionsHelper {
             removeTerpila(guild, member.getIdLong());
         }
         guild.addRoleToMember(UserSnowflake.fromId(terpilaId), guild.getRoleById(botConfig.getTerpilaRoleId())).queue();
+        userService.updateUserPunishmentAmount(terpilaId);
         log.warn("Terpila granted to {} ({})",
                 guild.getMember(UserSnowflake.fromId(terpilaId)).getUser().getName(), terpilaId);
     }
@@ -238,7 +239,7 @@ public class BotFunctionsHelper {
         return responseMessageBuilder.toString();
     }
 
-    public void makeHelpMessage(MessageChannelUnion channel) {
+    public void makeHelpEmbed(MessageChannelUnion channel) {
         var embed = new EmbedBuilder();
         var jokePenaltyDescription = String.format("Выдать предупреждение пользователю. " +
                         "Если количество предупреждений превысит некоторое значение (а сейчас это %s), " +
@@ -254,6 +255,8 @@ public class BotFunctionsHelper {
                 .addField("**!jokepenalty** %@участник_нейм%", jokePenaltyDescription, false)
                 .addField("**!restore** %@участник_нейм%", "Простить участника и снять нокозание", false)
                 .addField("**!rr**", "Сыграть в рулетку. Смертельно опасно :skull_crossbones:", false)
+                .addField("**!showdoge**", "Показать кросивую собачку! \uD83D\uDC36", false)
+                .addField("**!showfoxy**", "Показать *очень* кросивую лисичку! \uD83E\uDD8A", false)
                 .addField("**!кто** %вопрос%", "Задать мне вопрос!", false)
                 .addField("**!у кого** %вопрос%", "Тоже задать мне вопрос!!!", false)
                 .addField("**!avatar** %@участник_нейм%", "Получить аватарку пользователя", false)
