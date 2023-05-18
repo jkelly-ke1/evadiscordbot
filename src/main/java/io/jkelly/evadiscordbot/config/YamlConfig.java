@@ -30,4 +30,6 @@ public class YamlConfig {
 
     private List<String> botActivityList;
 
+    private List<String> magicBallAnswersList;
+
 }

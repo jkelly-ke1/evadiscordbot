@@ -34,7 +34,7 @@ public class PictureService {
         var dogDto = restTemplate.getForObject(randomDogLink, DogPicDto.class);
 
         if (dogDto != null) {
-            embed.setTitle("\uD83D\uDC36DOGGO\uD83D\uDC36")
+            embed.setTitle("\uD83D\uDC36 DOGE \uD83D\uDC36")
                     .setColor(Color.WHITE)
                     .setImage(dogDto.getDogPicUrl());
         } else {

@@ -53,6 +53,10 @@ public class BotFunctionsHelper {
         return String.format("**%s**", answer);
     }
 
+    public String makeMagicBallAnswer(long authorId) {
+        return String.format("\uD83C\uDFB1 | %s, <@%s>.", earnRandomMagicBallAnswer(), authorId);
+    }
+
     public void defineTerpila(Guild guild, long terpilaId) {
         for (Member member : guild.getMembers()) {
             removeTerpila(guild, member.getIdLong());
@@ -95,8 +99,8 @@ public class BotFunctionsHelper {
 
         try {
             var avatarUrl = jda.getUserById(userId).getAvatarUrl();
-            embed.setTitle(String.format("Аватар пользователя %s", jda.getUserById(userId).getAsTag()));
-            embed.setImage(avatarUrl);
+            embed.setTitle(String.format("Аватар пользователя %s", jda.getUserById(userId).getAsTag()))
+                    .setImage(avatarUrl);
         } catch (NullPointerException nullPo) {
             embed.setTitle("Простите, не могу найти данного пользователя " +
                     "или у него не установлен аватар или еще чо :face_with_spiral_eyes:");
@@ -122,13 +126,15 @@ public class BotFunctionsHelper {
 
                         if (userService.getUserByDiscordId(userId).get()
                                 .getPenaltyPoint() == botConfig.getMaxPenaltyPoint() - 1) {
-                            responseMessageBuilder.append("Пользователю <@").append(userId).append(">")
+                            responseMessageBuilder
+                                    .append("Пользователю <@").append(userId).append(">")
                                     .append(" добавлен **один штрафной балл**!")
                                     .append("\nОсторожно, последнее предупреждение! <:rat_sight:1079427636717166612>");
 
                         } else if (userService.getUserByDiscordId(userId).get()
                                 .getPenaltyPoint() == botConfig.getMaxPenaltyPoint() / 2) {
-                            responseMessageBuilder.append("Пользователю <@").append(userId).append(">")
+                            responseMessageBuilder
+                                    .append("Пользователю <@").append(userId).append(">")
                                     .append(" добавлен **один штрафной балл**!")
                                     .append("\nУ тебя еще есть шанс *извиниться*! <:jokei:1035142207306481704>");
 
@@ -137,13 +143,17 @@ public class BotFunctionsHelper {
                             try {
                                 userService.updateUserPenaltyPoint(userId, 0);
                                 commitPenaltyByNickname(jda, userId, earnRandomJokerSuffix());
-                                responseMessageBuilder.append(":clown: Ну и ну, вы расстроить партия! Штрафные санкции вам, <@")
-                                        .append(userId).append(">! <:rjobomba:1049320943912230972>");
+                                responseMessageBuilder
+                                        .append(":clown: Ну и ну, вы расстроить партия! Штрафные санкции вам, <@")
+                                        .append(userId)
+                                        .append(">! <:rjobomba:1049320943912230972>");
                             } catch (HierarchyException hierarchyException) {
                                 userService.updateUserPenaltyPoint(userId, 0);
-                                responseMessageBuilder.append("\uD83D\uDCA2 Из за ограничения моей роли я не могу наказать тебя, <@")
-                                        .append(userId).append(">...").append("\nНо знай что лично я... " +
-                                                "тебя ***крайне осуждаю***")
+                                responseMessageBuilder
+                                        .append("\uD83D\uDCA2 Из за ограничения моей роли я не могу наказать тебя, <@")
+                                        .append(userId)
+                                        .append(">...")
+                                        .append("\nНо знай что лично я... тебя ***крайне осуждаю***")
                                         .append(" <:rat_sight:1079427636717166612> " +
                                                 "<:rat_sight:1079427636717166612> <:rat_sight:1079427636717166612>");
                                 log.warn("Hierarchy exception was caught. " +
@@ -151,8 +161,10 @@ public class BotFunctionsHelper {
                             }
 
                         } else {
-                            responseMessageBuilder.append("<:bruh:1050845792266616922> Пользователю <@")
-                                    .append(userId).append(">")
+                            responseMessageBuilder
+                                    .append("<:bruh:1050845792266616922> Пользователю <@")
+                                    .append(userId)
+                                    .append(">")
                                     .append(" добавлен **один штрафной балл**!");
                         }
                         log.info("User {} ({}) joker penalty point: {}",
@@ -167,8 +179,9 @@ public class BotFunctionsHelper {
                                 "\nВыдавать предупреждения самому себе запрещено!", commandAuthorId));
             }
         } else {
-            responseMessageBuilder.append(String.format("<@%s>\n❌ Вы уже использовали свое предупреждение. " +
-                    "Возвращайтесь __***завтре***__! <:buket_tebe:1097898534126231633>", commandAuthorId));
+            responseMessageBuilder
+                    .append(String.format("<@%s>\n❌ Вы уже использовали свое предупреждение. " +
+                            "Возвращайтесь __***завтре***__! <:buket_tebe:1097898534126231633>", commandAuthorId));
         }
 
         return responseMessageBuilder.toString();
@@ -187,18 +200,23 @@ public class BotFunctionsHelper {
                         userService.updateUserPenaltyPoint(userId, 0);
                         var currentMember = currentGuild.getMember(UserSnowflake.fromId(userId));
                         var modifiedNickname = currentMember.getEffectiveName();
-                        currentMember.modifyNickname(modifiedNickname.replaceAll("\\([^()]*\\)", "").trim())
-                                .queue();
-                        responseMessageBuilder.append(":eyes: Пользователь <@").append(userId).append(">")
+                        currentMember.modifyNickname(modifiedNickname.replaceAll("\\([^()]*\\)", "")
+                                        .trim()).queue();
+                        responseMessageBuilder
+                                .append(":eyes: Пользователь <@")
+                                .append(userId)
+                                .append(">")
                                 .append(" **помилован и восстановлен**! Смотри мне блин!<:rat_sight:1079427636717166612>");
                     }
                 }
             } else {
-                responseMessageBuilder.append(String.format("<:rat_sight:1079427636717166612> Очень хитро, <@%s>..." +
+                responseMessageBuilder
+                        .append(String.format("<:rat_sight:1079427636717166612> Очень хитро, <@%s>..." +
                         "\nНо снимать с себя наказание **нельзя**!", commandAuthorId));
             }
         } else {
-            responseMessageBuilder.append(String.format("<@%s>\n❌ Вы уже использовали свою возможность " +
+            responseMessageBuilder
+                    .append(String.format("<@%s>\n❌ Вы уже использовали свою возможность " +
                     "менять уровень предупреждения на сегодня. " +
                     "Возвращайтесь __***завтре***__! <:mda:1100928775539134494>", commandAuthorId));
         }
@@ -228,11 +246,13 @@ public class BotFunctionsHelper {
                             "Can't kick {} due role restrictions", commandAuthorId);
                 }
             } else {
-                responseMessageBuilder.append("\uD83C\uDFB2 Крутим барабан...")
+                responseMessageBuilder
+                        .append("\uD83C\uDFB2 Крутим барабан...")
                         .append("\n\uD83D\uDE0F В этот раз повезло");
             }
         } else {
-            responseMessageBuilder.append(String.format("<@%s>\n❌ Вы уже крутили барабан сегодня. " +
+            responseMessageBuilder
+                    .append(String.format("<@%s>\n❌ Вы уже крутили барабан сегодня. " +
                     "Приходите завтра... <:jokei:1035142207306481704>", commandAuthorId));
         }
 
@@ -259,6 +279,8 @@ public class BotFunctionsHelper {
                 .addField("**!showfoxy**", "Показать *очень* кросивую лисичку! \uD83E\uDD8A", false)
                 .addField("**!кто** %вопрос%", "Задать мне вопрос!", false)
                 .addField("**!у кого** %вопрос%", "Тоже задать мне вопрос!!!", false)
+                .addField("**!вопрос**", "Задать вопрос магическому шару (ему пофик чо вы спросите) " +
+                        "\uD83C\uDFB1", false)
                 .addField("**!avatar** %@участник_нейм%", "Получить аватарку пользователя", false)
                 .addField("**!help**", "Увидеть это сообщение", false);
 
@@ -266,12 +288,14 @@ public class BotFunctionsHelper {
     }
 
     public void refreshPenaltyCooldown() {
-        userService.getAllUser().forEach(user -> userService.updateUserPenaltyCooldown(user.getDiscordId(), false));
+        userService.getAllUser().forEach(user -> userService
+                .updateUserPenaltyCooldown(user.getDiscordId(), false));
         log.info("Penalty cooldown was refreshed");
     }
 
     public void refreshRouletteCooldown() {
-        userService.getAllUser().forEach(user -> userService.updateUserRouletteCooldown(user.getDiscordId(), false));
+        userService.getAllUser().forEach(user -> userService
+                .updateUserRouletteCooldown(user.getDiscordId(), false));
         log.info("Roulette cooldown was refreshed");
     }
 
@@ -295,6 +319,11 @@ public class BotFunctionsHelper {
     private String earnRandomJokerSuffix() {
         var jokers = yamlConfig.getJokerSuffixList();
         return jokers.get(random.nextInt(jokers.size()));
+    }
+
+    private String earnRandomMagicBallAnswer() {
+        var ballAnswers = yamlConfig.getMagicBallAnswersList();
+        return ballAnswers.get(random.nextInt(ballAnswers.size()));
     }
 
     public String earnRandomActivityStatus() {

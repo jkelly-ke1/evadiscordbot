@@ -61,17 +61,18 @@ public class DiscordEventHandler extends ListenerAdapter {
         var eventMessage = event.getMessage();
         var eventChannel = event.getChannel();
         var messageText = eventMessage.getContentRaw();
+        var authorId = event.getAuthor().getIdLong();
 
         if (botConfig.isLoggingEnabled())
             messageService.addMessage(event);
 
         if (messageText.startsWith("!jokepenalty "))
             eventChannel.sendMessage(botFunctionsHelper.addAndCheckPenaltyToUser(messageText, event.getJDA(),
-                    eventMessage.getAuthor().getIdLong())).queue();
+                    authorId)).queue();
 
         if (messageText.startsWith("!restore "))
             eventChannel.sendMessage(botFunctionsHelper.restorePenalty(messageText, event.getJDA(),
-                    eventMessage.getAuthor().getIdLong())).queue();
+                    authorId)).queue();
 
         if (messageText.startsWith("!кто "))
             eventMessage.reply(botFunctionsHelper.makeWhoAnswer(messageText)).queue();
@@ -79,8 +80,11 @@ public class DiscordEventHandler extends ListenerAdapter {
         if (messageText.startsWith("!у кого "))
             eventMessage.reply(botFunctionsHelper.makeWhomAnswer(messageText)).queue();
 
+        if (messageText.startsWith("!вопрос "))
+            eventMessage.reply(botFunctionsHelper.makeMagicBallAnswer(authorId)).queue();
+
         if (messageText.startsWith("!woof"))
-            eventMessage.reply(String.format("Woof-woof, <@%s>!", event.getAuthor().getIdLong())).queue();
+            eventMessage.reply(String.format("Woof-woof, <@%s>!", authorId)).queue();
 
         if (messageText.equals("!help"))
             botFunctionsHelper.makeHelpEmbed(eventChannel);
@@ -92,7 +96,7 @@ public class DiscordEventHandler extends ListenerAdapter {
             pictureService.makeRandomFoxPictureEmbed(eventChannel);
 
         if (messageText.equals("!rr"))
-            eventMessage.reply(botFunctionsHelper.rollBarrel(event.getJDA(), event.getAuthor().getIdLong())).queue();
+            eventMessage.reply(botFunctionsHelper.rollBarrel(event.getJDA(), authorId)).queue();
 
         if (messageText.startsWith("!avatar "))
             botFunctionsHelper.makeUserAvatarEmbed(messageText, event.getJDA(), eventChannel);
@@ -150,7 +154,6 @@ public class DiscordEventHandler extends ListenerAdapter {
                     botFunctionsHelper.scheduledTerpilaTask(currentJda, mainChannel);
                     botFunctionsHelper.refreshPenaltyCooldown();
                     botFunctionsHelper.refreshRouletteCooldown();
-
                 },
                 initialDelay, TimeUnit.DAYS.toSeconds(1), TimeUnit.SECONDS).isDone();
 
