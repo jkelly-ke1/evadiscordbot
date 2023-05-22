@@ -4,21 +4,17 @@ import io.jkelly.evadiscordbot.config.BotConfig;
 import io.jkelly.evadiscordbot.config.YamlConfig;
 import io.jkelly.evadiscordbot.service.UserService;
 import lombok.extern.log4j.Log4j2;
-import net.dv8tion.jda.api.EmbedBuilder;
 import net.dv8tion.jda.api.JDA;
 import net.dv8tion.jda.api.entities.*;
-import net.dv8tion.jda.api.entities.channel.concrete.TextChannel;
-import net.dv8tion.jda.api.entities.channel.unions.MessageChannelUnion;
 import net.dv8tion.jda.api.exceptions.HierarchyException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
-import java.awt.*;
 import java.util.Random;
 
 @Component
 @Log4j2
-public class BotFunctionsHelper {
+public class GuildMembersManipulator {
 
     private final YamlConfig yamlConfig;
     private final Random random;
@@ -26,35 +22,12 @@ public class BotFunctionsHelper {
     private final BotConfig botConfig;
 
     @Autowired
-    public BotFunctionsHelper(YamlConfig yamlConfig, Random random,
-                              UserService userService, BotConfig botConfig) {
+    public GuildMembersManipulator(YamlConfig yamlConfig, Random random,
+                                   UserService userService, BotConfig botConfig) {
         this.yamlConfig = yamlConfig;
         this.random = random;
         this.userService = userService;
         this.botConfig = botConfig;
-    }
-
-    public String makeWhoAnswer(String question) {
-        var answer = new StringBuilder();
-        answer.append(question)
-                .replace(0, 4, yamlConfig.getMembersList()
-                        .get(random.nextInt(yamlConfig.getMembersList().size())))
-                .append("!");
-        return String.format("**%s**", answer);
-    }
-
-    public String makeWhomAnswer(String question) {
-        var answer = new StringBuilder();
-        answer.append("У")
-                .append(question.substring(7))
-                .insert(2, yamlConfig.getAltMembersList()
-                        .get(random.nextInt(yamlConfig.getAltMembersList().size())) + " ")
-                .append("!");
-        return String.format("**%s**", answer);
-    }
-
-    public String makeMagicBallAnswer(long authorId) {
-        return String.format("\uD83C\uDFB1 | %s, <@%s>.", earnRandomMagicBallAnswer(), authorId);
     }
 
     public void defineTerpila(Guild guild, long terpilaId) {
@@ -73,41 +46,6 @@ public class BotFunctionsHelper {
                 guild.getRoleById(botConfig.getTerpilaRoleId())).complete();
     }
 
-    public void scheduledTerpilaTask(JDA currentJda, TextChannel mainChannel) {
-        var terpilaId = earnRandomServerMember();
-        defineTerpila(currentJda.getGuildById(botConfig.getServerId()), terpilaId);
-        var embed = new EmbedBuilder();
-
-        if (terpilaId == botConfig.getBotId()) {
-            embed.setDescription(String.format("\uD83C\uDF89 Поздравляю, <@%s>! Ты **ТЕРПИЛА ДНЯ!** \uD83D\uDE40" +
-                            "\nОй... \uD83D\uDE35\u200D\uD83D\uDCAB\uD83D\uDE35\u200D\uD83D\uDCAB\uD83D\uDE35\u200D\uD83D\uDCAB",
-                    terpilaId));
-        } else {
-            embed.setDescription(String.format("\uD83C\uDF89 Поздравляю, <@%s>! Ты **ТЕРПИЛА ДНЯ!** \uD83D\uDE40" +
-                            "<:terpila:1037028097419116595> <:terpila:1037028097419116595> <:terpila:1037028097419116595>",
-                    terpilaId));
-        }
-
-        embed.setColor(Color.RED);
-        mainChannel.sendMessageEmbeds(embed.build()).queue();
-    }
-
-    public void makeUserAvatarEmbed(String message, JDA jda, MessageChannelUnion channel) {
-        var userIdSubstring = message.substring(message.indexOf("@") + 1, message.lastIndexOf(">"));
-        var userId = Long.parseLong(userIdSubstring);
-        var embed = new EmbedBuilder();
-
-        try {
-            var avatarUrl = jda.getUserById(userId).getAvatarUrl();
-            embed.setTitle(String.format("Аватар пользователя %s", jda.getUserById(userId).getAsTag()))
-                    .setImage(avatarUrl);
-        } catch (NullPointerException nullPo) {
-            embed.setTitle("Простите, не могу найти данного пользователя " +
-                    "или у него не установлен аватар или еще чо :face_with_spiral_eyes:");
-        }
-
-        channel.sendMessageEmbeds(embed.build()).queue();
-    }
 
     public String addAndCheckPenaltyToUser(String message, JDA jda, long commandAuthorId) {
         var userIdSubstring = message.substring(message.indexOf("@") + 1, message.lastIndexOf(">"));
@@ -259,34 +197,6 @@ public class BotFunctionsHelper {
         return responseMessageBuilder.toString();
     }
 
-    public void makeHelpEmbed(MessageChannelUnion channel) {
-        var embed = new EmbedBuilder();
-        var jokePenaltyDescription = String.format("Выдать предупреждение пользователю. " +
-                        "Если количество предупреждений превысит некоторое значение (а сейчас это %s), " +
-                        "то этот пользователь будет наказан <:sakagami:1049399866826178601>" +
-                        "\nДоступно один раз в день.",
-                botConfig.getMaxPenaltyPoint());
-
-        embed.setColor(Color.CYAN)
-                .setThumbnail(botConfig.getHelpEmbedGifLink())
-                .setTitle("Меню помощи! (мне бы кто помог)<:dumb_rat:1079429073446637698>")
-                .setDescription("Здесь находится список всех команд которые доступны на данный момент!")
-                .addField("**!woof**", "Сделать вуф!", false)
-                .addField("**!jokepenalty** %@участник_нейм%", jokePenaltyDescription, false)
-                .addField("**!restore** %@участник_нейм%", "Простить участника и снять нокозание", false)
-                .addField("**!rr**", "Сыграть в рулетку. Смертельно опасно :skull_crossbones:", false)
-                .addField("**!showdoge**", "Показать кросивую собачку! \uD83D\uDC36", false)
-                .addField("**!showfoxy**", "Показать *очень* кросивую лисичку! \uD83E\uDD8A", false)
-                .addField("**!кто** %вопрос%", "Задать мне вопрос!", false)
-                .addField("**!у кого** %вопрос%", "Тоже задать мне вопрос!!!", false)
-                .addField("**!вопрос**", "Задать вопрос магическому шару (ему пофик чо вы спросите) " +
-                        "\uD83C\uDFB1", false)
-                .addField("**!avatar** %@участник_нейм%", "Получить аватарку пользователя", false)
-                .addField("**!help**", "Увидеть это сообщение", false);
-
-        channel.sendMessageEmbeds(embed.build()).queue();
-    }
-
     public void refreshPenaltyCooldown() {
         userService.getAllUser().forEach(user -> userService
                 .updateUserPenaltyCooldown(user.getDiscordId(), false));
@@ -309,21 +219,9 @@ public class BotFunctionsHelper {
         }
     }
 
-    private long earnRandomServerMember() {
-        var users = userService.getAllUser();
-        var userId = users.get(random.nextInt(users.size())).getDiscordId();
-        log.info("Received random user id ({})", userId);
-        return userId;
-    }
-
     private String earnRandomJokerSuffix() {
         var jokers = yamlConfig.getJokerSuffixList();
         return jokers.get(random.nextInt(jokers.size()));
-    }
-
-    private String earnRandomMagicBallAnswer() {
-        var ballAnswers = yamlConfig.getMagicBallAnswersList();
-        return ballAnswers.get(random.nextInt(ballAnswers.size()));
     }
 
     public String earnRandomActivityStatus() {
