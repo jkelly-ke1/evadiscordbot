@@ -18,16 +18,16 @@ import java.util.Random;
 public class EmbedMaker {
 
     private final BotConfig botConfig;
-    private final GuildMembersManipulator functionsHelper;
+    private final GuildMembersManipulator membersManipulator;
     private final UserService userService;
     private final Random random;
 
     @Autowired
     public EmbedMaker(BotConfig botConfig,
-                      GuildMembersManipulator functionsHelper,
+                      GuildMembersManipulator membersManipulator,
                       UserService userService, Random random) {
         this.botConfig = botConfig;
-        this.functionsHelper = functionsHelper;
+        this.membersManipulator = membersManipulator;
         this.userService = userService;
         this.random = random;
     }
@@ -79,21 +79,29 @@ public class EmbedMaker {
 
     public void scheduledTerpilaTask(JDA currentJda, TextChannel mainChannel) {
         var terpilaId = earnRandomServerMember();
-        functionsHelper.defineTerpila(currentJda.getGuildById(botConfig.getServerId()), terpilaId);
         var embed = new EmbedBuilder();
 
-        if (terpilaId == botConfig.getBotId()) {
-            embed.setDescription(String.format("\uD83C\uDF89 Поздравляю, <@%s>! Ты **ТЕРПИЛА ДНЯ!** \uD83D\uDE40" +
-                            "\nОй... \uD83D\uDE35\u200D\uD83D\uDCAB\uD83D\uDE35\u200D\uD83D\uDCAB\uD83D\uDE35\u200D\uD83D\uDCAB",
-                    terpilaId));
-        } else {
-            embed.setDescription(String.format("\uD83C\uDF89 Поздравляю, <@%s>! Ты **ТЕРПИЛА ДНЯ!** \uD83D\uDE40" +
-                            "<:terpila:1037028097419116595> <:terpila:1037028097419116595> <:terpila:1037028097419116595>",
-                    terpilaId));
-        }
+        if (currentJda.getGuildById(botConfig.getServerId()).getMemberById(terpilaId) != null) {
+            membersManipulator.defineTerpila(currentJda.getGuildById(botConfig.getServerId()), terpilaId);
 
-        embed.setColor(Color.RED);
-        mainChannel.sendMessageEmbeds(embed.build()).queue();
+            if (terpilaId == botConfig.getBotId()) {
+                embed.setDescription(String.format("\uD83C\uDF89 Поздравляю, <@%s>! Ты **ТЕРПИЛА ДНЯ!** \uD83D\uDE40" +
+                                "\nОй... \uD83D\uDE35\u200D\uD83D\uDCAB\uD83D\uDE35\u200D\uD83D\uDCAB\uD83D\uDE35\u200D\uD83D\uDCAB",
+                        terpilaId));
+            } else {
+                embed.setDescription(String.format("\uD83C\uDF89 Поздравляю, <@%s>! " +
+                                "Ты **ТЕРПИЛА ДНЯ!** \uD83D\uDE40" +
+                                "<:terpila:1037028097419116595> <:terpila:1037028097419116595>" +
+                                " <:terpila:1037028097419116595>",
+                        terpilaId));
+            }
+            embed.setColor(Color.RED);
+            mainChannel.sendMessageEmbeds(embed.build()).queue();
+
+        } else {
+            log.warn("Looks like user by {} id don't belong to this server. Finding new one.", terpilaId);
+            scheduledTerpilaTask(currentJda, mainChannel);
+        }
     }
 
     private long earnRandomServerMember() {

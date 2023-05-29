@@ -153,7 +153,7 @@ public class DiscordEventHandler extends ListenerAdapter {
                 .queue();
 
         var now = ZonedDateTime.now(ZoneId.of("Europe/Kiev"));
-        var nextTime = now.withHour(12).withMinute(30).withSecond(0);
+        var nextTime = now.withHour(12).withMinute(0).withSecond(0);
 
         if (now.compareTo(nextTime) > 0)
             nextTime = nextTime.plusDays(1);

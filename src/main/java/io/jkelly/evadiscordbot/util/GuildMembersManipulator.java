@@ -34,7 +34,9 @@ public class GuildMembersManipulator {
         for (Member member : guild.getMembers()) {
             removeTerpila(guild, member.getIdLong());
         }
-        guild.addRoleToMember(UserSnowflake.fromId(terpilaId), guild.getRoleById(botConfig.getTerpilaRoleId())).queue();
+
+        guild.addRoleToMember(UserSnowflake.fromId(terpilaId),
+                guild.getRoleById(botConfig.getTerpilaRoleId())).queue();
         userService.updateUserPunishmentAmount(terpilaId);
         log.warn("Terpila granted to {} ({})",
                 guild.getMember(UserSnowflake.fromId(terpilaId)).getUser().getName(), terpilaId);
@@ -139,7 +141,7 @@ public class GuildMembersManipulator {
                         var currentMember = currentGuild.getMember(UserSnowflake.fromId(userId));
                         var modifiedNickname = currentMember.getEffectiveName();
                         currentMember.modifyNickname(modifiedNickname.replaceAll("\\([^()]*\\)", "")
-                                        .trim()).queue();
+                                .trim()).queue();
                         responseMessageBuilder
                                 .append(":eyes: Пользователь <@")
                                 .append(userId)
@@ -150,13 +152,13 @@ public class GuildMembersManipulator {
             } else {
                 responseMessageBuilder
                         .append(String.format("<:rat_sight:1079427636717166612> Очень хитро, <@%s>..." +
-                        "\nНо снимать с себя наказание **нельзя**!", commandAuthorId));
+                                "\nНо снимать с себя наказание **нельзя**!", commandAuthorId));
             }
         } else {
             responseMessageBuilder
                     .append(String.format("<@%s>\n❌ Вы уже использовали свою возможность " +
-                    "менять уровень предупреждения на сегодня. " +
-                    "Возвращайтесь __***завтре***__! <:mda:1100928775539134494>", commandAuthorId));
+                            "менять уровень предупреждения на сегодня. " +
+                            "Возвращайтесь __***завтре***__! <:mda:1100928775539134494>", commandAuthorId));
         }
 
         return responseMessageBuilder.toString();
@@ -168,7 +170,7 @@ public class GuildMembersManipulator {
         if (!userService.getUserByDiscordId(commandAuthorId).get().isOnRouletteCooldown()) {
             userService.updateUserRouletteCooldown(commandAuthorId, true);
 
-            if (random.nextInt(7) == 6) {
+            if (random.nextInt(6) == 5) {
                 try {
                     responseMessageBuilder.append("\uD83C\uDFB2 Крутим барабан...")
                             .append("\n\uD83D\uDCA5<:revolver:1105169657171804234> Бам! Ты умер. :skull:");
@@ -191,7 +193,7 @@ public class GuildMembersManipulator {
         } else {
             responseMessageBuilder
                     .append(String.format("<@%s>\n❌ Вы уже крутили барабан сегодня. " +
-                    "Приходите завтра... <:jokei:1035142207306481704>", commandAuthorId));
+                            "Приходите завтра... <:jokei:1035142207306481704>", commandAuthorId));
         }
 
         return responseMessageBuilder.toString();
