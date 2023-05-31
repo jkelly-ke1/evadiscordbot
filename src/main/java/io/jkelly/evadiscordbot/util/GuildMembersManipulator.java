@@ -169,18 +169,23 @@ public class GuildMembersManipulator {
 
         if (!userService.getUserByDiscordId(commandAuthorId).get().isOnRouletteCooldown()) {
             userService.updateUserRouletteCooldown(commandAuthorId, true);
+            var currentUserBarrelCapacity = userService
+                    .getUserByDiscordId(commandAuthorId)
+                    .get().getBarrelCapacity();
+            var definedBullet = random.nextInt(currentUserBarrelCapacity);
 
-            if (random.nextInt(6) == 5) {
+            if (definedBullet == currentUserBarrelCapacity - 1 || definedBullet == currentUserBarrelCapacity) {
                 try {
                     responseMessageBuilder.append("\uD83C\uDFB2 Крутим барабан...")
                             .append("\n\uD83D\uDCA5<:revolver:1105169657171804234> Бам! Ты умер. :skull:");
                     jda.getGuildById(botConfig.getServerId())
                             .kick(UserSnowflake.fromId(commandAuthorId)).queue();
                     userService.updateUserRouletteCooldown(commandAuthorId, false);
+                    userService.updateUserBarrelCapacity(commandAuthorId, botConfig.getMaxBarrelCapacity());
                 } catch (HierarchyException hierarchyException) {
                     responseMessageBuilder
                             .append("\n\uD83E\uDD2C При обычных обстоятельствах ты бы умер, " +
-                                    "но тебя спасло то что я ограниченна своей ролью. ")
+                                    "но тебя спасло то что я ограничена своей ролью. ")
                             .append("\nКороче притворись мертвым <:rat_sight:1079427636717166612>");
                     log.warn("Hierarchy exception was caught. " +
                             "Can't kick {} due role restrictions", commandAuthorId);
@@ -189,6 +194,12 @@ public class GuildMembersManipulator {
                 responseMessageBuilder
                         .append("\uD83C\uDFB2 Крутим барабан...")
                         .append("\n\uD83D\uDE0F В этот раз повезло");
+                userService.updateUserBarrelCapacity(commandAuthorId, currentUserBarrelCapacity - 1);
+                log.info("User {} ({}) current barrel capacity: {}. Deadly bullet: {}",
+                        jda.getUserById(commandAuthorId).getName(),
+                        commandAuthorId,
+                        userService.getUserByDiscordId(commandAuthorId).get().getBarrelCapacity(),
+                        definedBullet);
             }
         } else {
             responseMessageBuilder

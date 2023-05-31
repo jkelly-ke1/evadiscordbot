@@ -35,6 +35,9 @@ public class BotConfig {
     @Value("${discord.bot.maxPenaltyPoint}")
     private int maxPenaltyPoint;
 
+    @Value("${discord.bot.maxBarrelCapacity}")
+    private int maxBarrelCapacity;
+
     @Value("${discord.bot.helpEmbedGifLink}")
     private String helpEmbedGifLink;
 

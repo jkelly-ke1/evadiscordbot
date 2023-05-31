@@ -51,6 +51,12 @@ public class UserService {
                 .setPunishmentAmount(user.getPunishmentAmount() + 1));
     }
 
+    @Transactional
+    public void updateUserBarrelCapacity(long discordId, int currentBarrelCapacity) {
+        userRepository.getUserByDiscordId(discordId).ifPresent(user -> user
+                .setBarrelCapacity(currentBarrelCapacity));
+    }
+
     public List<User> getAllUser() {
         return userRepository.findAll();
     }

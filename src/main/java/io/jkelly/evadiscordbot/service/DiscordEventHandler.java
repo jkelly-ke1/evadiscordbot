@@ -149,11 +149,12 @@ public class DiscordEventHandler extends ListenerAdapter {
         }
         log.info("Current guild members list:\n{}", membersSb.toString());
 
-        mainChannel.sendMessage("✨Утречка!✨\n\uD83D\uDC36Вылезла из будки и берусь за работу!\uD83E\uDD71\uD83D\uDECC")
+        mainChannel.sendMessage("✨Утречка!✨\n\uD83D\uDC36" +
+                        "Вылезла из будки и берусь за работу!\uD83E\uDD71\uD83D\uDECC")
                 .queue();
 
         var now = ZonedDateTime.now(ZoneId.of("Europe/Kiev"));
-        var nextTime = now.withHour(12).withMinute(0).withSecond(0);
+        var nextTime = now.withHour(12).withMinute(20).withSecond(0);
 
         if (now.compareTo(nextTime) > 0)
             nextTime = nextTime.plusDays(1);

@@ -34,4 +34,7 @@ public class User implements Serializable {
 
     @Column(name = "punishment_amount")
     private int punishmentAmount;
+
+    @Column(name = "barrel_capacity")
+    private int barrelCapacity;
 }

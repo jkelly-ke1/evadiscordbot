@@ -1,5 +1,6 @@
 package io.jkelly.evadiscordbot.service;
 
+import io.jkelly.evadiscordbot.config.BotConfig;
 import io.jkelly.evadiscordbot.models.Message;
 import io.jkelly.evadiscordbot.models.User;
 import io.jkelly.evadiscordbot.repositores.MessageRepository;
@@ -15,10 +16,15 @@ public class MessageService {
     private final MessageRepository messageRepository;
     private final UserService userService;
 
+    private final BotConfig botConfig;
+
     @Autowired
-    public MessageService(MessageRepository messageRepository, UserService userService) {
+    public MessageService(MessageRepository messageRepository,
+                          UserService userService,
+                          BotConfig botConfig) {
         this.messageRepository = messageRepository;
         this.userService = userService;
+        this.botConfig = botConfig;
     }
 
     @Transactional
@@ -47,6 +53,7 @@ public class MessageService {
             user.setOnPenaltyCooldown(false);
             user.setOnRouletteCooldown(false);
             user.setPunishmentAmount(0);
+            user.setBarrelCapacity(botConfig.getMaxBarrelCapacity());
             userService.addUser(user);
             return user;
         }
