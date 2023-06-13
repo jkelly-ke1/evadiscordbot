@@ -86,6 +86,9 @@ public class DiscordEventHandler extends ListenerAdapter {
             eventChannel.sendMessage(guildMembersManipulator.restorePenalty(messageText, event.getJDA(),
                     authorId)).queue();
 
+        if (messageText.startsWith("!slap"))
+            eventChannel.sendMessage(plainMessageMaker.makeSlapAnswer(messageText, authorId)).queue();
+
         if (messageText.startsWith("!кто "))
             eventMessage.reply(plainMessageMaker.makeWhoAnswer(messageText)).queue();
 
@@ -145,7 +148,9 @@ public class DiscordEventHandler extends ListenerAdapter {
 
         for (var member : currentJda.getGuildById(botConfig.getServerId()).getMembers()) {
             membersSb.append(member.getUser().getName())
-                    .append(" (").append(member.getIdLong()).append(")").append("; ");
+                    .append(" (").append(member.getIdLong()).append(").")
+                    .append(" Roles: ").append(member.getRoles())
+                    .append("; ");
         }
         log.info("Current guild members list:\n{}", membersSb.toString());
 
@@ -205,7 +210,10 @@ public class DiscordEventHandler extends ListenerAdapter {
                 event.getUser().getIdLong())).queue();
     }
 
-    public void vote(SlashCommandInteractionEvent event, String subjectText, String firstOption, String secondOption) {
+    public void vote(SlashCommandInteractionEvent event,
+                     String subjectText,
+                     String firstOption,
+                     String secondOption) {
         var voteMessageText = String.format("\uD83D\uDDF3 %s \n1. %s \n2. %s",
                 subjectText, firstOption, secondOption);
         event.reply(voteMessageText).queue();

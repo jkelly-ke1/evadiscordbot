@@ -38,6 +38,12 @@ public class PlainMessageMaker {
         return String.format("**%s**", answer);
     }
 
+    public String makeSlapAnswer(String message, long authorId) {
+        var userIdSubstring = message.substring(message.indexOf("@") + 1, message.lastIndexOf(">"));
+        return String.format("\uD83C\uDF51\uD83D\uDD90 ***Хлясь!***\n" +
+                "<@%s> дал <@%s> **по жопе**!", authorId, userIdSubstring);
+    }
+
     public String makeMagicBallAnswer(long authorId) {
         return String.format("\uD83C\uDFB1 | %s, <@%s>.", earnRandomMagicBallAnswer(), authorId);
     }

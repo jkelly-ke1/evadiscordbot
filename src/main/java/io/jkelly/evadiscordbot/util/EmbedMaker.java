@@ -62,6 +62,7 @@ public class EmbedMaker {
                 .setTitle("Меню помощи! (мне бы кто помог)<:dumb_rat:1079429073446637698>")
                 .setDescription("Здесь находится список всех команд которые доступны на данный момент!")
                 .addField("**!woof**", "Сделать вуф!", false)
+                .addField("**!slap** %@участник_нейм%", "Шлепнуть участника по \uD83C\uDF51!", false)
                 .addField("**!jokepenalty** %@участник_нейм%", jokePenaltyDescription, false)
                 .addField("**!restore** %@участник_нейм%", "Простить участника и снять нокозание", false)
                 .addField("**!rr**", "Сыграть в рулетку. Смертельно опасно :skull_crossbones:", false)
