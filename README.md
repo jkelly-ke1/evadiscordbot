@@ -11,4 +11,4 @@ Bot for my Discord server. Based on [JDA](https://github.com/DV8FromTheWorld/JDA
 
 ## To Do list:
 - Add new slash commands
-- Implement new features using external API's
+- ~~Implement new features using external API's~~
