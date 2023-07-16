@@ -15,7 +15,7 @@ import java.util.Random;
 
 @Log4j2
 @Component
-public class EmbedMaker {
+public class EmbedSender {
 
     private final BotConfig botConfig;
     private final GuildMembersManipulator membersManipulator;
@@ -23,9 +23,9 @@ public class EmbedMaker {
     private final Random random;
 
     @Autowired
-    public EmbedMaker(BotConfig botConfig,
-                      GuildMembersManipulator membersManipulator,
-                      UserService userService, Random random) {
+    public EmbedSender(BotConfig botConfig,
+                       GuildMembersManipulator membersManipulator,
+                       UserService userService, Random random) {
         this.botConfig = botConfig;
         this.membersManipulator = membersManipulator;
         this.userService = userService;

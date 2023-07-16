@@ -41,4 +41,7 @@ public class BotConfig {
     @Value("${discord.bot.helpEmbedGifLink}")
     private String helpEmbedGifLink;
 
+    @Value("${discord.bot.lanaTriggerReplyId}")
+    private long lanaTriggerReplyId;
+
 }

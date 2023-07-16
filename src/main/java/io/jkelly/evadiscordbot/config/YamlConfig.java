@@ -32,4 +32,5 @@ public class YamlConfig {
 
     private List<String> magicBallAnswersList;
 
+    private List<String> lanaList;
 }

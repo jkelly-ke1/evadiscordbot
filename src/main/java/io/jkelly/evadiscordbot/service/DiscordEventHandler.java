@@ -2,7 +2,7 @@ package io.jkelly.evadiscordbot.service;
 
 import io.jkelly.evadiscordbot.config.BotConfig;
 import io.jkelly.evadiscordbot.util.GuildMembersManipulator;
-import io.jkelly.evadiscordbot.util.EmbedMaker;
+import io.jkelly.evadiscordbot.util.EmbedSender;
 import io.jkelly.evadiscordbot.util.PlainMessageMaker;
 import io.jkelly.evadiscordbot.util.TriggerChecker;
 import lombok.extern.log4j.Log4j2;
@@ -36,7 +36,7 @@ public class DiscordEventHandler extends ListenerAdapter {
     private final BotConfig botConfig;
     private final PictureService pictureService;
     private final PlainMessageMaker plainMessageMaker;
-    private final EmbedMaker embedMaker;
+    private final EmbedSender embedSender;
 
     @Autowired
     public DiscordEventHandler(GuildMembersManipulator guildMembersManipulator,
@@ -46,7 +46,7 @@ public class DiscordEventHandler extends ListenerAdapter {
                                BotConfig botConfig,
                                PictureService pictureService,
                                PlainMessageMaker plainMessageMaker,
-                               EmbedMaker embedMaker) {
+                               EmbedSender embedSender) {
         this.guildMembersManipulator = guildMembersManipulator;
         this.triggerChecker = triggerChecker;
         this.messageService = messageService;
@@ -54,7 +54,7 @@ public class DiscordEventHandler extends ListenerAdapter {
         this.botConfig = botConfig;
         this.pictureService = pictureService;
         this.plainMessageMaker = plainMessageMaker;
-        this.embedMaker = embedMaker;
+        this.embedSender = embedSender;
     }
 
     @Override
@@ -102,7 +102,7 @@ public class DiscordEventHandler extends ListenerAdapter {
             eventMessage.reply(String.format("Woof-woof, <@%s>!", authorId)).queue();
 
         if (messageText.equals("!help"))
-            embedMaker.makeHelpEmbed(eventChannel);
+            embedSender.makeHelpEmbed(eventChannel);
 
         if (messageText.equals("!showdoge"))
             pictureService.makeRandomDogPictureEmbed(eventChannel);
@@ -114,13 +114,16 @@ public class DiscordEventHandler extends ListenerAdapter {
             eventMessage.reply(guildMembersManipulator.rollBarrel(event.getJDA(), authorId)).queue();
 
         if (messageText.startsWith("!avatar "))
-            embedMaker.makeUserAvatarEmbed(messageText, event.getJDA(), eventChannel);
+            embedSender.makeUserAvatarEmbed(messageText, event.getJDA(), eventChannel);
 
         if (triggerChecker.isContainsMageTrigger(messageText))
             eventMessage.addReaction(Emoji.fromUnicode("\uD83E\uDDD9")).queue();
 
         if (triggerChecker.isContainsPigTrigger(messageText))
             eventMessage.addReaction(Emoji.fromUnicode("\uD83D\uDC16")).queue();
+
+        if (triggerChecker.isContainsLanaTrigger(messageText))
+            eventMessage.reply(String.format("<@%s>", botConfig.getLanaTriggerReplyId())).queue();
 
         if (triggerChecker.isContainsShameTrigger(messageText)) {
             eventMessage.addReaction(Emoji.fromUnicode("\uD83C\uDDF8")).queue();
@@ -169,7 +172,7 @@ public class DiscordEventHandler extends ListenerAdapter {
         var scheduledService = Executors.newScheduledThreadPool(1);
 
         scheduledService.scheduleAtFixedRate(() -> {
-                    embedMaker.scheduledTerpilaTask(currentJda, mainChannel);
+                    embedSender.scheduledTerpilaTask(currentJda, mainChannel);
                     guildMembersManipulator.refreshPenaltyCooldown();
                     guildMembersManipulator.refreshRouletteCooldown();
                 },

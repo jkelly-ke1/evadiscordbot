@@ -48,7 +48,7 @@ public class GuildMembersManipulator {
                 guild.getRoleById(botConfig.getTerpilaRoleId())).complete();
     }
 
-
+    // this method add penalty point to specific user
     public String addAndCheckPenaltyToUser(String message, JDA jda, long commandAuthorId) {
         var userIdSubstring = message.substring(message.indexOf("@") + 1, message.lastIndexOf(">"));
         var userId = Long.parseLong(userIdSubstring);

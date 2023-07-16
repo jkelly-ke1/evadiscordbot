@@ -29,4 +29,8 @@ public class TriggerChecker {
         return shameList.stream().anyMatch(message::contains);
     }
 
+    public boolean isContainsLanaTrigger(String message) {
+        var lanaList = yamlConfig.getLanaList();
+        return lanaList.stream().anyMatch(message::contains);
+    }
 }
