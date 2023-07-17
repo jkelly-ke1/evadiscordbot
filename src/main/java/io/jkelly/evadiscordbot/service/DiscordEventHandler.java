@@ -122,7 +122,7 @@ public class DiscordEventHandler extends ListenerAdapter {
         if (triggerChecker.isContainsPigTrigger(messageText))
             eventMessage.addReaction(Emoji.fromUnicode("\uD83D\uDC16")).queue();
 
-        if (triggerChecker.isContainsLanaTrigger(messageText))
+        if (botConfig.isLanaTriggerEnabled() && triggerChecker.isContainsLanaTrigger(messageText))
             eventMessage.reply(String.format("<@%s>", botConfig.getLanaTriggerReplyId())).queue();
 
         if (triggerChecker.isContainsShameTrigger(messageText)) {

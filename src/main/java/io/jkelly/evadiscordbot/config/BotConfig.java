@@ -23,6 +23,9 @@ public class BotConfig {
     @Value("${discord.bot.messageLoggingEnabled}")
     private boolean isLoggingEnabled;
 
+    @Value("${discord.bot.lanaTriggerEnabled}")
+    private boolean isLanaTriggerEnabled;
+
     @Value("${discord.bot.myGuildId}")
     private long serverId;
 
