@@ -48,8 +48,17 @@ public class PlainMessageMaker {
         return String.format("\uD83C\uDFB1 | %s, <@%s>.", earnRandomMagicBallAnswer(), authorId);
     }
 
+    public String makeRollAnswer() {
+        return String.format("\uD83C\uDFB2 %s", earnRandomRollNumber());
+    }
+
     private String earnRandomMagicBallAnswer() {
         var ballAnswers = yamlConfig.getMagicBallAnswersList();
         return ballAnswers.get(random.nextInt(ballAnswers.size()));
+    }
+
+    private String earnRandomRollNumber() {
+        var randomRollNumber = random.nextInt(101);
+        return String.format("%03d", randomRollNumber);
     }
 }

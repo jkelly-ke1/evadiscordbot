@@ -113,6 +113,9 @@ public class DiscordEventHandler extends ListenerAdapter {
         if (messageText.equals("!rr"))
             eventMessage.reply(guildMembersManipulator.rollBarrel(event.getJDA(), authorId)).queue();
 
+        if (messageText.equals("!roll"))
+            eventMessage.reply(plainMessageMaker.makeRollAnswer()).queue();
+
         if (messageText.startsWith("!avatar "))
             embedSender.makeUserAvatarEmbed(messageText, event.getJDA(), eventChannel);
 

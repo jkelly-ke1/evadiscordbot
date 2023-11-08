@@ -66,6 +66,7 @@ public class EmbedSender {
                 .addField("**!jokepenalty** %@участник_нейм%", jokePenaltyDescription, false)
                 .addField("**!restore** %@участник_нейм%", "Простить участника и снять нокозание", false)
                 .addField("**!rr**", "Сыграть в рулетку. Смертельно опасно :skull_crossbones:", false)
+                .addField("**!roll**", "Крутануть случайное число, от 0 до 100! \uD83C\uDFB2", false)
                 .addField("**!showdoge**", "Показать кросивую собачку! \uD83D\uDC36", false)
                 .addField("**!showfoxy**", "Показать *очень* кросивую лисичку! \uD83E\uDD8A", false)
                 .addField("**!кто** %вопрос%", "Задать мне вопрос!", false)
